@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Slider } from "../components/Slider";
@@ -141,3 +141,4 @@ export default function Home() {
   );
 
 }
+
