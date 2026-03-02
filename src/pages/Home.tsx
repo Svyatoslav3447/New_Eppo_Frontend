@@ -29,10 +29,10 @@ export default function Home() {
     setQuantities(prev => ({ ...prev, [id]: value }));
 
   useEffect(() => {
-    axios.get("http://localhost:3000/slider").then(res => setSlider(res.data)).catch(console.error);
-    axios.get("http://localhost:3000/categories").then(res => setCategories(res.data)).catch(console.error);
-    axios.get("http://localhost:3000/products").then(res => setNewProducts(res.data.slice(-4).reverse())).catch(console.error);
-    axios.get("http://localhost:3000/products/popular").then(res => setPopularProducts(res.data.slice(0,4))).catch(console.error);
+    axios.get("/slider").then(res => setSlider(res.data)).catch(console.error);
+    axios.get("/categories").then(res => setCategories(res.data)).catch(console.error);
+    axios.get("/products").then(res => setNewProducts(res.data.slice(-4).reverse())).catch(console.error);
+    axios.get("/popular").then(res => setPopularProducts(res.data.slice(0,4))).catch(console.error);
   }, []);
 
   const categoryContainerVariants: Variants = {
@@ -139,4 +139,5 @@ export default function Home() {
       </section>
     </div>
   );
+
 }
