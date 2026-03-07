@@ -5,6 +5,7 @@ interface Category {
   name: string;
   image: string;
 }
+const BACKEND = import.meta.env.VITE_BACKEND_URL;
 
 export function CategoryCard({
   category,
@@ -30,7 +31,7 @@ export function CategoryCard({
     >
       <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden">
         <img
-          src={`http://localhost:3000/images/categories/${category.name}.webp`}
+          src={`${BACKEND}/images/categories/${category.name}.webp`}
           alt={category.name}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110"
         />
