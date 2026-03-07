@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
 const API = import.meta.env.VITE_API_URL;
+const BACKEND = import.meta.env.VITE_BACKEND_URL;
 
 interface Slide {
   id: number;
@@ -108,7 +109,7 @@ export default function EditHome() {
             className="flex flex-col sm:flex-row items-center sm:items-start gap-4 border p-4 rounded shadow-sm hover:shadow-md transition"
           >
             <img
-              src={`${API}/images/categories/${cat.name}.webp`}
+              src={`${BACKEND}/images/categories/${cat.name}.webp`}
               alt={cat.name}
               className="w-full sm:w-24 h-24 object-cover rounded"
             />
@@ -160,7 +161,7 @@ export default function EditHome() {
             className="flex flex-col sm:flex-row items-center sm:items-start gap-4 border p-4 rounded shadow-sm hover:shadow-md transition"
           >
             <img
-              src={`${API}${s.image}`}
+              src={`${BACKEND}${s.image}`}
               alt={s.title}
               className="w-full sm:w-32 h-20 object-cover rounded"
             />
@@ -203,3 +204,4 @@ export default function EditHome() {
     </div>
   );
 }
+
