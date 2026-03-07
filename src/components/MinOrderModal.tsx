@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { api } from "../api/axios";
+import { api } from "../api/axios"; // правильно підключаємо свій axios
+
+interface MinOrder {
+  amount: number;
+  message: string;
+}
 
 export default function MinOrderModal({
   isOpen,
@@ -14,12 +19,12 @@ export default function MinOrderModal({
 
   useEffect(() => {
     if (isOpen) {
-      axios
-        .get("/min-order")
+      api.get<MinOrder>("/min-order")
         .then((res) => {
           setAmount(res.data.amount);
           setMessage(res.data.message);
-        });
+        })
+        .catch(console.error);
     }
   }, [isOpen]);
 
@@ -27,12 +32,14 @@ export default function MinOrderModal({
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(
+      await api.patch(
         "/min-order",
         { amount, message },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       onClose();
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -83,5 +90,4 @@ export default function MinOrderModal({
       </div>
     </div>
   );
-
 }
