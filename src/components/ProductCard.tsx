@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { FiShoppingCart } from "react-icons/fi";
 import type { Product } from "../api/products";
 import { useState } from "react";
+const BASE_URL = import.meta.env.VITE_API_URL.replace(/\/api$/, ""); 
 
 interface ProductCardProps {
   product: Product;
@@ -36,7 +37,7 @@ export function ProductCard({ product, quantity, changeQuantity, setQuantity, ad
         transition={{ duration: 0.5 }}
       >
         <img
-          src={`http://localhost:3000/images/products/${product.sku}.webp`}
+          src={`${BASE_URL}/images/products/${product.sku}.webp`}
           alt={product.sku}
           className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
         />
@@ -114,4 +115,5 @@ export function ProductCard({ product, quantity, changeQuantity, setQuantity, ad
       </motion.button>
     </motion.div>
   );
+
 }
