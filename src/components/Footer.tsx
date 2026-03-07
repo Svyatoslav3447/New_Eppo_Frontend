@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/axios";
+import { api } from "../api/axios"; // ваш axios з базовим URL з .env
 
 type Category = {
   id: number;
@@ -11,9 +11,8 @@ export default function Footer() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch("/categories")
-      .then(res => res.json())
-      .then(data => setCategories(data))
+    api.get<Category[]>("/categories")
+      .then(res => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
 
@@ -125,5 +124,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-
 }
