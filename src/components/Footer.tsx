@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "../api/axios";
 
 type Category = {
   id: number;
@@ -10,7 +11,7 @@ export default function Footer() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/categories")
+    fetch("/categories")
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(() => setCategories([]));
@@ -124,4 +125,5 @@ export default function Footer() {
       </div>
     </footer>
   );
+
 }
