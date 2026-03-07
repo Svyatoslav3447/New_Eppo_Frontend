@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api/axios";
 
 export default function MinOrderModal({
   isOpen,
@@ -15,7 +15,7 @@ export default function MinOrderModal({
   useEffect(() => {
     if (isOpen) {
       axios
-        .get("http://localhost:3000/min-order")
+        .get("/min-order")
         .then((res) => {
           setAmount(res.data.amount);
           setMessage(res.data.message);
@@ -28,7 +28,7 @@ export default function MinOrderModal({
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        "http://localhost:3000/min-order",
+        "/min-order",
         { amount, message },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,4 +83,5 @@ export default function MinOrderModal({
       </div>
     </div>
   );
+
 }
