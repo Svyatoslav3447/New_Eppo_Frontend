@@ -39,7 +39,7 @@ export function Slider({ slides }: SliderProps) {
               className="absolute inset-0 flex items-center justify-center bg-black/5"
             >
               <img
-                src={`${BACKEND}/${slide.image}`}
+                src={`${BACKEND}${slide.image}`}
                 alt=""
                 className="max-w-full max-h-full object-contain rounded-xl shadow-md"
               />
@@ -64,3 +64,4 @@ export function Slider({ slides }: SliderProps) {
   );
 
 }
+
