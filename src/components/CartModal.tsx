@@ -12,7 +12,6 @@ export default function CartDrawer({
 }) {
   const { items, removeFromCart, clearCart, updateQuantity, syncCart } = useCart();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [minOrder, setMinOrder] = useState<{ amount: number; message: string }>({
     amount: 800,
     message: "Мінімальна сума замовлення — 800 ₴",
@@ -25,7 +24,7 @@ export default function CartDrawer({
     syncCart(); // отримуємо актуальні дані товарів
 
     axios
-      .get("${API_URL}/min-order")
+      .get("https://new-eppo.onrender.com/api/min-order")
       .then((res) => setMinOrder(res.data))
       .catch(() => {}); // дефолтне значення
   }, [isOpen]);
@@ -90,7 +89,7 @@ export default function CartDrawer({
                 className="w-16 h-16 object-cover rounded-lg border"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
-                    "${API_URL}/images/products/default.webp";
+                    "https://new-eppo.onrender.com/images/products/default.webp";
                 }}
               />
 
@@ -200,6 +199,7 @@ export default function CartDrawer({
   );
 
 }
+
 
 
 
