@@ -12,7 +12,7 @@ export default function CartDrawer({
 }) {
   const { items, removeFromCart, clearCart, updateQuantity, syncCart } = useCart();
   const navigate = useNavigate();
-  
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [minOrder, setMinOrder] = useState<{ amount: number; message: string }>({
     amount: 800,
     message: "Мінімальна сума замовлення — 800 ₴",
@@ -25,7 +25,7 @@ export default function CartDrawer({
     syncCart(); // отримуємо актуальні дані товарів
 
     axios
-      .get("http://localhost:3000/min-order")
+      .get("${API_URL}/min-order")
       .then((res) => setMinOrder(res.data))
       .catch(() => {}); // дефолтне значення
   }, [isOpen]);
@@ -85,12 +85,12 @@ export default function CartDrawer({
               className="flex gap-4 items-center p-3 rounded-lg shadow-sm hover:shadow-md transition bg-white border"
             >
               <img
-                src={`http://localhost:3000/images/products/${i.sku}.webp`}
+                src={`${API_URL}/images/products/${i.sku}.webp`}
                 alt={i.sku}
                 className="w-16 h-16 object-cover rounded-lg border"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
-                    "http://localhost:3000/images/products/default.webp";
+                    "${API_URL}/images/products/default.webp";
                 }}
               />
 
@@ -198,4 +198,5 @@ export default function CartDrawer({
       </div>
     </>
   );
+
 }
