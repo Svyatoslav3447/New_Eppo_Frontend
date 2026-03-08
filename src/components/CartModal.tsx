@@ -13,6 +13,7 @@ export default function CartDrawer({
   const { items, removeFromCart, clearCart, updateQuantity, syncCart } = useCart();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const BASE_URL = import.meta.env.VITE_API_URL.replace(/\/api$/, ""); 
   const [minOrder, setMinOrder] = useState<{ amount: number; message: string }>({
     amount: 800,
     message: "Мінімальна сума замовлення — 800 ₴",
@@ -85,7 +86,7 @@ export default function CartDrawer({
               className="flex gap-4 items-center p-3 rounded-lg shadow-sm hover:shadow-md transition bg-white border"
             >
               <img
-                src={`${API_URL}/images/products/${i.sku}.webp`}
+                src={`${BASE_URL}/images/products/${i.sku}.webp`}
                 alt={i.sku}
                 className="w-16 h-16 object-cover rounded-lg border"
                 onError={(e) => {
@@ -200,3 +201,4 @@ export default function CartDrawer({
   );
 
 }
+
