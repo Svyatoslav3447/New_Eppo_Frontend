@@ -1,7 +1,7 @@
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { api } from "../api/axios";
+import axios from "axios";
 
 export default function CartDrawer({
   isOpen,
@@ -13,7 +13,6 @@ export default function CartDrawer({
   const { items, removeFromCart, clearCart, updateQuantity, syncCart } = useCart();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-  const BASE_URL = import.meta.env.VITE_API_URL.replace(/\/api$/, ""); 
   const [minOrder, setMinOrder] = useState<{ amount: number; message: string }>({
     amount: 800,
     message: "Мінімальна сума замовлення — 800 ₴",
@@ -201,6 +200,7 @@ export default function CartDrawer({
   );
 
 }
+
 
 
 
