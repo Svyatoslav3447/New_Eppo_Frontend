@@ -86,7 +86,7 @@ export default function CartDrawer({
               className="flex gap-4 items-center p-3 rounded-lg shadow-sm hover:shadow-md transition bg-white border"
             >
               <img
-                src={`${BASE_URL}/images/products/${i.sku}.webp`}
+                src={`https://new-eppo.onrender.com/images/products/${i.sku}.webp`}
                 alt={i.sku}
                 className="w-16 h-16 object-cover rounded-lg border"
                 onError={(e) => {
@@ -201,5 +201,6 @@ export default function CartDrawer({
   );
 
 }
+
 
 
