@@ -17,8 +17,8 @@ export default function ProductsList() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const data = await getProducts();
-      setProducts(data);
+      const res = await getProducts();
+      setProducts(res.data);
     } finally {
       setLoading(false);
     }
@@ -165,4 +165,5 @@ export default function ProductsList() {
       )}
     </div>
   );
+
 }
