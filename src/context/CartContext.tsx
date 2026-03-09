@@ -81,16 +81,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const syncCart = async () => {
     try {
       const res = await axios.get(`${API_URL}/products`);
-      const products: any[] = res.data;
-
+      const products = Array.isArray(res.data) 
+        ? res.data 
+        : res.data.data ?? []; // якщо об’єкт { data: [...], pagination: ... }
+  
       setItems(prev =>
         prev.map(item => {
           const product = products.find(p => p.id === item.id);
           if (!product || product.is_hidden) {
-            // Товар відсутній
             return { ...item, isUnavailable: true };
           }
-          // Товар доступний
           return { ...item, price_grn: product.price_grn, sku: product.sku, isUnavailable: false };
         })
       );
@@ -137,4 +137,5 @@ export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) throw new Error("useCart must be used within CartProvider");
   return context;
+
 };
