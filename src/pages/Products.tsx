@@ -104,8 +104,6 @@ export default function Products() {
       }
     });
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const changeQuantity = (id: number, delta: number) => {
     setQuantities(prev => ({ ...prev, [id]: Math.max(1, (prev[id] ?? 1) + delta) }));
@@ -236,4 +234,5 @@ export default function Products() {
     </div>
   );
 }
+
 
