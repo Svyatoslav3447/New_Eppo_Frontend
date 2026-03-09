@@ -19,6 +19,13 @@ interface CartContextType {
   syncCart: () => Promise<void>;
 }
 
+interface BackendProduct {
+  id: number;
+  sku: string;
+  price_grn: number;
+  is_hidden?: boolean;
+}
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -81,9 +88,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const syncCart = async () => {
     try {
       const res = await axios.get(`${API_URL}/products`);
-      const products = Array.isArray(res.data) 
-        ? res.data 
-        : res.data.data ?? []; // якщо об’єкт { data: [...], pagination: ... }
+      const products: BackendProduct[] = Array.isArray(res.data)
+        ? res.data
+        : res.data.data ?? [];
   
       setItems(prev =>
         prev.map(item => {
@@ -98,7 +105,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sync failed", err);
     }
   };
-
   // SSE для миттєвого оновлення
   useEffect(() => {
     const evtSource = new EventSource(`${API_URL}/products/updates/stream`);
@@ -139,3 +145,4 @@ export const useCart = () => {
   return context;
 
 };
+
