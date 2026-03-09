@@ -1,5 +1,26 @@
+// src/api/products.ts
 import { api } from "./axios";
 export { api };
+
+// ------------------ TYPES ------------------
+export interface Product {
+  id: number;
+  sku: string;
+  price_usd: number;
+  price_grn: number;
+  created_at?: string;
+
+  category: { id: number; name: string };
+  subcategory?: { id: number; name: string };
+  type?: { id: number; name: string };
+  totalSold?: number;
+  is_hidden?: boolean;
+
+  parameters?: {
+    parameter: { id: number; name: string };
+    values: string[];
+  }[];
+}
 
 export interface ProductsResponse {
   data: Product[];
@@ -11,6 +32,7 @@ export interface ProductsResponse {
   };
 }
 
+// ------------------ API ------------------
 export const getProducts = async (page = 1, limit = 8): Promise<ProductsResponse> => {
   const token = localStorage.getItem("token");
   const res = await api.get<ProductsResponse>("/products", {
@@ -28,7 +50,6 @@ export const getProductById = async (id: number): Promise<Product> => {
   return res.data;
 };
 
-// Оновлення stock
 export const updateProductStock = (id: number, quantity: number) => {
   return api.patch(
     `/products/${id}/stock`,
@@ -37,10 +58,8 @@ export const updateProductStock = (id: number, quantity: number) => {
   );
 };
 
-// Видалення
 export const deleteProduct = (id: number) => {
   return api.delete(`/products/${id}`, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
 };
-
