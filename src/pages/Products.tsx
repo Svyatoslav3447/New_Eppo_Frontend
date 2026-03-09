@@ -212,7 +212,7 @@ export default function Products() {
           {error && <p className="text-red-500 font-medium">{error}</p>}
 
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {paginated.map(p => (
+            {filtered.map((p: Product) => (
               <ProductCard
                 key={p.id}
                 product={p}
@@ -234,5 +234,6 @@ export default function Products() {
     </div>
   );
 }
+
 
 
