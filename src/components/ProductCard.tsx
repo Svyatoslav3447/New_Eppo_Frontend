@@ -37,6 +37,8 @@ export function ProductCard({ product, quantity, changeQuantity, setQuantity, ad
         transition={{ duration: 0.5 }}
       >
         <img
+          loading="lazy"
+          decoding="async"
           src={`${BASE_URL}/images/products/${product.sku}.webp`}
           alt={product.sku}
           className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
@@ -117,3 +119,4 @@ export function ProductCard({ product, quantity, changeQuantity, setQuantity, ad
   );
 
 }
+
