@@ -7,7 +7,6 @@ import { Pagination } from "../components/Pagination";
 import { useSearchParams } from "react-router-dom";
 
 export default function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
@@ -24,12 +23,16 @@ export default function Products() {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await getProducts();
-        setProducts(data);
+        const res = await getProducts(currentPage, itemsPerPage);
+        setProducts(res.data);       // масив продуктів
+        setTotalPages(res.pagination.totalPages); // кількість сторінок
       } catch (err: any) {
         console.error(err);
         setError("Не вдалося завантажити товари");
@@ -38,7 +41,7 @@ export default function Products() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [currentPage, itemsPerPage]);
   useEffect(() => {
     if (!categoryIdFilter || products.length === 0) return;
 
@@ -223,9 +226,14 @@ export default function Products() {
             ))}
           </div>
 
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </main>
       </div>
     </div>
   );
 }
+
