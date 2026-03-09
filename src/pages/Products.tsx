@@ -1,115 +1,56 @@
 import { useEffect, useState } from "react";
 import { getProducts, type Product } from "../api/products";
 import { useCart } from "../context/CartContext";
-import { Filters } from "../components/Filters";
 import { ProductCard } from "../components/ProductCard";
 import { Pagination } from "../components/Pagination";
-import { useSearchParams } from "react-router-dom";
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("search")?.toLowerCase() || "";
-  const categoryIdFromUrl = searchParams.get("categoryId");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [categoryIdFilter, setCategoryIdFilter] = useState<number | null>(null);
-  const [subcategoryFilter, setSubcategoryFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [sort, setSort] = useState<"default" | "name" | "price_asc" | "price_desc" | "popular">("default");
-  const [itemsPerPage, setItemsPerPage] = useState(8);
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [totalPages, setTotalPages] = useState(1);
+
   const { addToCart } = useCart();
+
   const [quantities, setQuantities] = useState<Record<number, number>>({});
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  const changeQuantity = (id: number, delta: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [id]: Math.max(1, (prev[id] ?? 1) + delta)
+    }));
+  };
+
+  const setQuantity = (id: number, value: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await getProducts();
-        setProducts(data);
-      } catch (err: any) {
+
+        const res = await getProducts(currentPage, itemsPerPage);
+
+        setProducts(res.data);
+        setTotalPages(res.totalPages);
+
+      } catch (err) {
         console.error(err);
         setError("Не вдалося завантажити товари");
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
-  }, []);
-  useEffect(() => {
-    if (!categoryIdFilter || products.length === 0) return;
-
-    const category = products.find(
-      p => p.category.id === categoryIdFilter
-    )?.category;
-
-    if (category) {
-      setCategoryFilter(category.name);
-    }
-  }, [categoryIdFilter, products]);
-  useEffect(() => {
-    if (categoryIdFromUrl) {
-      setCategoryIdFilter(Number(categoryIdFromUrl));
-    }
-  }, [categoryIdFromUrl]);
-
-  useEffect(() => setCurrentPage(1), [categoryFilter, subcategoryFilter, typeFilter, searchQuery, itemsPerPage]);
-
-  const categories = Array.from(new Set(products.map(p => p.category.name)));
-  const subcategories = Array.from(new Set(
-    products
-      .filter(p => !categoryFilter || p.category.name === categoryFilter)
-      .map(p => p.subcategory?.name)
-      .filter(Boolean) as string[]
-  ));
-  const types = Array.from(new Set(
-    products
-      .filter(p => (!categoryFilter || p.category.name === categoryFilter) &&
-                   (!subcategoryFilter || p.subcategory?.name === subcategoryFilter))
-      .map(p => p.type?.name)
-      .filter(Boolean) as string[]
-  ));
-
-  const filtered = products
-    .filter(p =>
-      !p.is_hidden &&
-      (!categoryFilter || p.category.name === categoryFilter) &&
-      (!categoryIdFilter || p.category.id === categoryIdFilter) &&
-      (!subcategoryFilter || p.subcategory?.name === subcategoryFilter) &&
-      (!typeFilter || p.type?.name === typeFilter) &&
-      (!searchQuery || p.sku.toLowerCase().includes(searchQuery))
-    )
-    .sort((a, b) => {
-      switch (sort) {
-        case "name":
-          return a.sku.localeCompare(b.sku, undefined, { numeric: true, sensitivity: "base" });
-        case "price_asc":
-          return a.price_grn - b.price_grn;
-        case "price_desc":
-          return b.price_grn - a.price_grn;
-        case "popular":
-          return (b.totalSold ?? 0) - (a.totalSold ?? 0);
-        default:
-          const aE = a.sku.toUpperCase().startsWith("E");
-          const bE = b.sku.toUpperCase().startsWith("E");
-          if (aE && !bE) return -1;
-          if (!aE && bE) return 1;
-          return a.sku.localeCompare(b.sku, undefined, { numeric: true, sensitivity: "base" });
-      }
-    });
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const changeQuantity = (id: number, delta: number) => {
-    setQuantities(prev => ({ ...prev, [id]: Math.max(1, (prev[id] ?? 1) + delta) }));
-  };
-  const setQuantity = (id: number, value: number) => {
-    setQuantities(prev => ({ ...prev, [id]: value }));
-  };
+  }, [currentPage, itemsPerPage]);
 
   return (
     <div className="p-4 sm:p-8 bg-gradient-to-b from-purple-50 to-white min-h-screen">
@@ -117,114 +58,39 @@ export default function Products() {
         Наш товар
       </h1>
 
-      {/* MOBILE FILTER & SORT BUTTONS */}
-      <div className="flex justify-between items-center mb-4 lg:hidden">
-        <button
-          onClick={() => setShowMobileFilters(true)}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-500 transition"
-        >
-          Фільтри
-        </button>
-        <select
-          value={sort}
-          onChange={e => setSort(e.target.value as any)}
-          className="border border-purple-300 text-purple-700 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition"
-        >
-          <option value="default">Без фільтру</option>
-          <option value="name">По назві</option>
-          <option value="price_asc">Від дешевого до дорогого</option>
-          <option value="price_desc">Від дорогого до дешевого</option>
-          <option value="popular">По популярності</option>
-        </select>
+      {loading && (
+        <p className="text-purple-600 font-medium animate-pulse">
+          Завантаження...
+        </p>
+      )}
+
+      {error && (
+        <p className="text-red-500 font-medium">
+          {error}
+        </p>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        {products
+          .filter(p => !p.is_hidden)
+          .map(p => (
+            <ProductCard
+              key={p.id}
+              product={p}
+              quantity={quantities[p.id] ?? 1}
+              changeQuantity={changeQuantity}
+              setQuantity={setQuantity}
+              addToCart={addToCart}
+            />
+        ))}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* LEFT: Filters */}
-        <aside
-          className={`w-full lg:w-1/4 lg:sticky top-8 bg-white rounded-2xl p-6 shadow-lg h-fit lg:block ${
-            showMobileFilters
-              ? "block fixed inset-0 z-50 bg-white p-6 overflow-auto"
-              : "hidden lg:block"
-          }`}
-          style={{ top: '64px' }}
-        >
-          <div className="flex justify-between items-center mb-4 lg:hidden">
-            <h2 className="text-xl font-bold text-purple-700">Фільтри</h2>
-            <button
-              onClick={() => setShowMobileFilters(false)}
-              className="text-purple-700 font-bold text-2xl"
-            >
-              ×
-            </button>
-          </div>
-
-          <Filters
-            categories={categories}
-            subcategories={subcategories}
-            types={types}
-            categoryFilter={categoryFilter}
-            subcategoryFilter={subcategoryFilter}
-            typeFilter={typeFilter}
-            sort={sort}
-            itemsPerPage={itemsPerPage}
-            onCategoryChange={value => { setCategoryFilter(value); setSubcategoryFilter(""); setTypeFilter(""); }}
-            onSubcategoryChange={value => { setSubcategoryFilter(value); setTypeFilter(""); }}
-            onTypeChange={value => setTypeFilter(value)}
-            onSortChange={value => setSort(value as any)}
-            onItemsPerPageChange={value => setItemsPerPage(value)}
-          />
-        </aside>
-
-        {/* RIGHT: Products */}
-        <main className="flex-1">
-          <div className="hidden lg:flex items-center justify-between mb-6 gap-4">
-            <div className="flex gap-2 items-center">
-              <span className="font-medium text-gray-700">Сортування:</span>
-              <select
-                value={sort}
-                onChange={e => setSort(e.target.value as any)}
-                className="border border-purple-300 text-purple-700 rounded p-2 shadow-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition"
-              >
-                <option value="default">Без фільтру</option>
-                <option value="name">По назві</option>
-                <option value="price_asc">Від дешевого до дорогого</option>
-                <option value="price_desc">Від дорогого до дешевого</option>
-                <option value="popular">По популярності</option>
-              </select>
-            </div>
-
-            <div className="flex gap-2 items-center">
-              <span className="font-medium text-gray-700">На сторінку:</span>
-              <select
-                value={itemsPerPage}
-                onChange={e => setItemsPerPage(Number(e.target.value))}
-                className="border border-purple-300 text-purple-700 rounded p-2 shadow-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition"
-              >
-                <option value={8}>8</option>
-                <option value={16}>16</option>
-                <option value={32}>32</option>
-              </select>
-            </div>
-          </div>
-
-          {loading && <p className="text-purple-600 font-medium animate-pulse">Завантаження...</p>}
-          {error && <p className="text-red-500 font-medium">{error}</p>}
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {paginated.map(p => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                quantity={quantities[p.id] ?? 1}
-                changeQuantity={changeQuantity}
-                setQuantity={setQuantity}
-                addToCart={addToCart}
-              />
-            ))}
-          </div>
-
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-        </main>
+      <div className="mt-10 flex justify-center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );
