@@ -13,15 +13,9 @@ export default function Products() {
   const searchQuery = searchParams.get("search")?.toLowerCase() || "";
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [itemsPerPage, setItemsPerPage] = useState(Number(searchParams.get("limit")) || 8);
-  const [categoryFilter, setCategoryFilter] = useState<number | undefined>(
-    Number(searchParams.get("categoryId")) || undefined
-  );
-  const [subcategoryFilter, setSubcategoryFilter] = useState<number | undefined>(
-    Number(searchParams.get("subcategoryId")) || undefined
-  );
-  const [typeFilter, setTypeFilter] = useState<number | undefined>(
-    Number(searchParams.get("typeId")) || undefined
-  );
+  const [categoryFilter, setCategoryFilter] = useState<number | undefined>(Number(searchParams.get("categoryId")) || undefined);
+  const [subcategoryFilter, setSubcategoryFilter] = useState<number | undefined>(Number(searchParams.get("subcategoryId")) || undefined);
+  const [typeFilter, setTypeFilter] = useState<number | undefined>(Number(searchParams.get("typeId")) || undefined);
   const [sort, setSort] = useState<any>(searchParams.get("sort") || "default");
   const { addToCart } = useCart();
   const [quantities, setQuantities] = useState<Record<number, number>>({});
@@ -236,6 +230,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
