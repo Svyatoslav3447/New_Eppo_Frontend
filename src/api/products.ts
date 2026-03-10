@@ -35,9 +35,9 @@ export interface ProductsResponse {
 interface GetProductsParams {
   page?: number;
   limit?: number;
-  category?: string;
-  subcategory?: string;
-  type?: string;
+  categoryId?: number;
+  subcategoryId?: number;
+  typeId?: number;
   sort?: string;
   search?: string;
 }
@@ -45,16 +45,16 @@ interface GetProductsParams {
 export const getProducts = async ({
   page = 1,
   limit = 8,
-  category,
-  subcategory,
-  type,
+  categoryId,
+  subcategoryId,
+  typeId,
   sort,
   search
 }: GetProductsParams): Promise<ProductsResponse> => {
   const token = localStorage.getItem("token");
   const res = await api.get<ProductsResponse>("/products", {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    params: { page, limit, category, subcategory, type, sort, search },
+    params: { page, limit, categoryId, subcategoryId, typeId, sort, search },
   });
   return res.data;
 };
@@ -79,4 +79,5 @@ export const deleteProduct = (id: number) => {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
 };
+
 
