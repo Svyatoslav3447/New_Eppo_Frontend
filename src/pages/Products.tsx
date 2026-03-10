@@ -22,7 +22,13 @@ export default function Products() {
   const { addToCart } = useCart();
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-
+  const [categoriesData, setCategoriesData] = useState<any[]>([]);
+  useEffect(() => {
+    fetch("https://new-eppo.onrender.com/api/categories")
+      .then(res => res.json())
+      .then(setCategoriesData)
+      .catch(console.error);
+  }, []);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   
@@ -61,20 +67,16 @@ export default function Products() {
 
   useEffect(() => setCurrentPage(1), [categoryFilter, subcategoryFilter, typeFilter, searchQuery, itemsPerPage]);
 
-  const categories = Array.from(new Set(products.map(p => p.category.name)));
-  const subcategories = Array.from(new Set(
-    products
-      .filter(p => !categoryFilter || p.category.name === categoryFilter)
-      .map(p => p.subcategory?.name)
-      .filter(Boolean) as string[]
-  ));
-  const types = Array.from(new Set(
-    products
-      .filter(p => (!categoryFilter || p.category.name === categoryFilter) &&
-                   (!subcategoryFilter || p.subcategory?.name === subcategoryFilter))
-      .map(p => p.type?.name)
-      .filter(Boolean) as string[]
-  ));
+  const categories = categoriesData.map(c => c.name);
+  const subcategories =
+    categoriesData
+      .find(c => c.name === categoryFilter)
+      ?.subcategories?.map((s: any) => s.name) ?? [];
+  const types =
+    categoriesData
+      .find(c => c.name === categoryFilter)
+      ?.subcategories?.find((s: any) => s.name === subcategoryFilter)
+      ?.types?.map((t: any) => t.name) ?? [];
 
   const filtered = products
     .filter(p =>
@@ -234,6 +236,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
