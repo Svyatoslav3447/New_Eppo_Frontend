@@ -180,9 +180,9 @@ export default function Products() {
             categories={categoriesData.map(c => ({ id: c.id, name: c.name }))}
             subcategories={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []}
             types={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.find(s => s.id === subcategoryFilter)?.types?.map(t => ({ id: t.id, name: t.name })) || []}
-            categoryFilter={categoryFilter?}
-            subcategoryFilter={subcategoryFilter?}
-            typeFilter={typeFilter?}
+            categoryFilter={categoryFilter}
+            subcategoryFilter={subcategoryFilter}
+            typeFilter={typeFilter}
             sort={sort}
             itemsPerPage={itemsPerPage}
             onCategoryChange={value => setCategoryFilter(Number(value))}
@@ -251,6 +251,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
