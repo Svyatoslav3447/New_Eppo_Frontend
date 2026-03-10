@@ -9,29 +9,49 @@ import { useSearchParams } from "react-router-dom";
 export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("search")?.toLowerCase() || "";
   const categoryIdFromUrl = searchParams.get("categoryId");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [categoryIdFilter, setCategoryIdFilter] = useState<number | null>(null);
-  const [subcategoryFilter, setSubcategoryFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [sort, setSort] = useState<"default" | "name" | "price_asc" | "price_desc" | "popular">("default");
-  const [itemsPerPage, setItemsPerPage] = useState(8);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
+  const [itemsPerPage, setItemsPerPage] = useState(Number(searchParams.get("limit")) || 8);
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "");
+  const [subcategoryFilter, setSubcategoryFilter] = useState(searchParams.get("subcategory") || "");
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "");
+  const [sort, setSort] = useState<any>(searchParams.get("sort") || "default");
   const { addToCart } = useCart();
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [categoriesData, setCategoriesData] = useState<any[]>([]);
+  const [categoriesData, setCategoriesData] = useState<any[]>([]);  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  useEffect(() => {
+    const params: any = {};
+  
+    if (currentPage !== 1) params.page = currentPage;
+    if (itemsPerPage !== 8) params.limit = itemsPerPage;
+    if (categoryFilter) params.category = categoryFilter;
+    if (subcategoryFilter) params.subcategory = subcategoryFilter;
+    if (typeFilter) params.type = typeFilter;
+    if (sort !== "default") params.sort = sort;
+    if (searchQuery) params.search = searchQuery;
+  
+    setSearchParams(params);
+  }, [
+    currentPage,
+    itemsPerPage,
+    categoryFilter,
+    subcategoryFilter,
+    typeFilter,
+    sort,
+    searchQuery
+  ]);
   useEffect(() => {
     fetch("https://new-eppo.onrender.com/api/categories")
       .then(res => res.json())
       .then(setCategoriesData)
       .catch(console.error);
   }, []);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -48,17 +68,17 @@ export default function Products() {
     };
     fetchProducts();
   }, [currentPage, itemsPerPage]);
+  
   useEffect(() => {
     if (!categoryIdFilter || products.length === 0) return;
-
     const category = products.find(
       p => p.category.id === categoryIdFilter
     )?.category;
-
     if (category) {
       setCategoryFilter(category.name);
     }
   }, [categoryIdFilter, products]);
+  
   useEffect(() => {
     if (categoryIdFromUrl) {
       setCategoryIdFilter(Number(categoryIdFromUrl));
@@ -236,6 +256,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
