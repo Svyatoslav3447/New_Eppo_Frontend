@@ -6,6 +6,23 @@ import { ProductCard } from "../components/ProductCard";
 import { Pagination } from "../components/Pagination";
 import { useSearchParams } from "react-router-dom";
 
+interface Type {
+  id: number;
+  name: string;
+}
+
+interface Subcategory {
+  id: number;
+  name: string;
+  types?: Type[];
+}
+
+interface Category {
+  id: number;
+  name: string;
+  subcategories?: Subcategory[];
+}
+
 export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +40,7 @@ export default function Products() {
   const [categoriesData, setCategoriesData] = useState<any[]>([]);  
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [categoriesData, setCategoriesData] = useState<Category[]>([]);
   useEffect(() => {
     const params: any = {};
     if (currentPage !== 1) params.page = currentPage;
@@ -160,33 +178,26 @@ export default function Products() {
           </div>
 
           <Filters
-            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))}
+            categories={categoriesData.map((c: Category) => c.name)}
             subcategories={
               categoriesData
-                .find(c => c.id === categoryFilter)
-                ?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []
+                .find((c: Category) => c.id === categoryFilter)
+                ?.subcategories?.map((s: Subcategory) => s.name) || []
             }
             types={
               categoriesData
-                .find(c => c.id === categoryFilter)
-                ?.subcategories?.find(s => s.id === subcategoryFilter)
-                ?.types?.map(t => ({ id: t.id, name: t.name })) || []
+                .find((c: Category) => c.id === categoryFilter)
+                ?.subcategories?.find((s: Subcategory) => s.id === subcategoryFilter)
+                ?.types?.map((t: Type) => t.name) || []
             }
-            categoryFilter={categoryFilter}
-            subcategoryFilter={subcategoryFilter}
-            typeFilter={typeFilter}
+            categoryFilter={categoryFilter?.toString() || ""}
+            subcategoryFilter={subcategoryFilter?.toString() || ""}
+            typeFilter={typeFilter?.toString() || ""}
             sort={sort}
             itemsPerPage={itemsPerPage}
-            onCategoryChange={id => {
-              setCategoryFilter(id);
-              setSubcategoryFilter(undefined);
-              setTypeFilter(undefined);
-            }}
-            onSubcategoryChange={id => {
-              setSubcategoryFilter(id);
-              setTypeFilter(undefined);
-            }}
-            onTypeChange={id => setTypeFilter(id)}
+            onCategoryChange={value => setCategoryFilter(Number(value))}
+            onSubcategoryChange={value => setSubcategoryFilter(Number(value))}
+            onTypeChange={value => setTypeFilter(Number(value))}
             onSortChange={value => setSort(value)}
             onItemsPerPageChange={value => setItemsPerPage(value)}
           />
@@ -250,6 +261,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
