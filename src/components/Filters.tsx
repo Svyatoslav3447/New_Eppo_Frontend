@@ -1,19 +1,23 @@
+interface FilterOption {
+  id: number;
+  name: string;
+}
+
 interface FiltersProps {
-  categories: string[];
-  subcategories: string[];
-  types: string[];
-  categoryFilter: string;
-  subcategoryFilter: string;
-  typeFilter: string;
+  categories: FilterOption[];
+  subcategories: FilterOption[];
+  types: FilterOption[];
+  categoryFilter?: number;
+  subcategoryFilter?: number;
+  typeFilter?: number;
   sort: string;
   itemsPerPage: number;
-  onCategoryChange: (value: string) => void;
-  onSubcategoryChange: (value: string) => void;
-  onTypeChange: (value: string) => void;
+  onCategoryChange: (value?: number) => void;
+  onSubcategoryChange: (value?: number) => void;
+  onTypeChange: (value?: number) => void;
   onSortChange: (value: string) => void;
   onItemsPerPageChange: (value: number) => void;
 }
-
 export function Filters({
   categories,
   subcategories,
@@ -103,4 +107,5 @@ export function Filters({
       </select>
     </div>
   );
+
 }
