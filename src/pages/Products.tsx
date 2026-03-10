@@ -177,19 +177,22 @@ export default function Products() {
           </div>
 
           <Filters
-            categories={categories}
-            subcategories={subcategories}
-            types={types}
+            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))}
+            subcategories={
+              categoriesData.find(c => c.id === categoryFilter)?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []
+            }
+            types={
+              categoriesData
+                .find(c => c.id === categoryFilter)
+                ?.subcategories?.find(s => s.id === subcategoryFilter)
+                ?.types?.map(t => ({ id: t.id, name: t.name })) || []
+            }
             categoryFilter={categoryFilter}
             subcategoryFilter={subcategoryFilter}
             typeFilter={typeFilter}
-            sort={sort}
-            itemsPerPage={itemsPerPage}
-            onCategoryChange={value => { setCategoryFilter(value); setSubcategoryFilter(""); setTypeFilter(""); }}
-            onSubcategoryChange={value => { setSubcategoryFilter(value); setTypeFilter(""); }}
-            onTypeChange={value => setTypeFilter(value)}
-            onSortChange={value => setSort(value as any)}
-            onItemsPerPageChange={value => setItemsPerPage(value)}
+            onCategoryChange={id => { setCategoryFilter(id); setSubcategoryFilter(undefined); setTypeFilter(undefined); }}
+            onSubcategoryChange={id => { setSubcategoryFilter(id); setTypeFilter(undefined); }}
+            onTypeChange={id => setTypeFilter(id)}
           />
         </aside>
 
@@ -251,6 +254,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
