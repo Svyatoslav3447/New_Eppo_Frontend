@@ -13,9 +13,15 @@ export default function Products() {
   const searchQuery = searchParams.get("search")?.toLowerCase() || "";
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [itemsPerPage, setItemsPerPage] = useState(Number(searchParams.get("limit")) || 8);
-  const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "");
-  const [subcategoryFilter, setSubcategoryFilter] = useState(searchParams.get("subcategory") || "");
-  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "");
+  const [categoryFilter, setCategoryFilter] = useState<number | undefined>(
+    Number(searchParams.get("categoryId")) || undefined
+  );
+  const [subcategoryFilter, setSubcategoryFilter] = useState<number | undefined>(
+    Number(searchParams.get("subcategoryId")) || undefined
+  );
+  const [typeFilter, setTypeFilter] = useState<number | undefined>(
+    Number(searchParams.get("typeId")) || undefined
+  );
   const [sort, setSort] = useState<any>(searchParams.get("sort") || "default");
   const { addToCart } = useCart();
   const [quantities, setQuantities] = useState<Record<number, number>>({});
@@ -25,12 +31,11 @@ export default function Products() {
   const [totalPages, setTotalPages] = useState(1);
   useEffect(() => {
     const params: any = {};
-  
     if (currentPage !== 1) params.page = currentPage;
     if (itemsPerPage !== 8) params.limit = itemsPerPage;
-    if (categoryFilter) params.category = categoryFilter;
-    if (subcategoryFilter) params.subcategory = subcategoryFilter;
-    if (typeFilter) params.type = typeFilter;
+    if (categoryFilter) params.categoryId = categoryFilter;
+    if (subcategoryFilter) params.subcategoryId = subcategoryFilter;
+    if (typeFilter) params.typeId = typeFilter;
     if (sort !== "default") params.sort = sort;
     if (searchQuery) params.search = searchQuery;
   
@@ -56,15 +61,16 @@ export default function Products() {
       try {
         setLoading(true);
         const res = await getProducts({
-                            page: currentPage,
-                            limit: itemsPerPage,
-                            category: categoryFilter,
-                            subcategory: subcategoryFilter,
-                            type: typeFilter,
-                            sort
-                          });
-        setProducts(res.data);       // масив продуктів
-        setTotalPages(res.pagination.totalPages); // кількість сторінок
+          page: currentPage,
+          limit: itemsPerPage,
+          categoryId: categoryFilter,
+          subcategoryId: subcategoryFilter,
+          typeId: typeFilter,
+          sort,
+          search: searchQuery
+        });
+        setProducts(res.data);
+        setTotalPages(res.pagination.totalPages);
       } catch (err: any) {
         console.error(err);
         setError("Не вдалося завантажити товари");
@@ -73,7 +79,7 @@ export default function Products() {
       }
     };
     fetchProducts();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, categoryFilter, subcategoryFilter, typeFilter, sort, searchQuery]);
 
   useEffect(() => setCurrentPage(1), [categoryFilter, subcategoryFilter, typeFilter, searchQuery, itemsPerPage]);
 
@@ -245,6 +251,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
