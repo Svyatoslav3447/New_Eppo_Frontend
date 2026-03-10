@@ -83,17 +83,6 @@ export default function Products() {
 
   useEffect(() => setCurrentPage(1), [categoryFilter, subcategoryFilter, typeFilter, searchQuery, itemsPerPage]);
 
-  const categories = categoriesData.map(c => c.name);
-  const subcategories =
-    categoriesData
-      .find(c => c.name === categoryFilter)
-      ?.subcategories?.map((s: any) => s.name) ?? [];
-  const types =
-    categoriesData
-      .find(c => c.name === categoryFilter)
-      ?.subcategories?.find((s: any) => s.name === subcategoryFilter)
-      ?.types?.map((t: any) => t.name) ?? [];
-
   const filtered = products
     .filter(p =>
       !p.is_hidden &&
@@ -177,19 +166,12 @@ export default function Products() {
           </div>
 
           <Filters
-            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))}
-            subcategories={
-              categoriesData.find(c => c.id === categoryFilter)?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []
-            }
-            types={
-              categoriesData
-                .find(c => c.id === categoryFilter)
-                ?.subcategories?.find(s => s.id === subcategoryFilter)
-                ?.types?.map(t => ({ id: t.id, name: t.name })) || []
-            }
-            categoryFilter={categoryFilter}
-            subcategoryFilter={subcategoryFilter}
-            typeFilter={typeFilter}
+            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))} // {id, name}[]
+            subcategories={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []}
+            types={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.find(s => s.id === subcategoryFilter)?.types?.map(t => ({ id: t.id, name: t.name })) || []}
+            categoryFilter={categoryFilter}         // number | undefined
+            subcategoryFilter={subcategoryFilter}   // number | undefined
+            typeFilter={typeFilter}                 // number | undefined
             onCategoryChange={id => { setCategoryFilter(id); setSubcategoryFilter(undefined); setTypeFilter(undefined); }}
             onSubcategoryChange={id => { setSubcategoryFilter(id); setTypeFilter(undefined); }}
             onTypeChange={id => setTypeFilter(id)}
@@ -254,6 +236,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
