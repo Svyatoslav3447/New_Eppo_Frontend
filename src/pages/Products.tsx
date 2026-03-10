@@ -11,7 +11,6 @@ export default function Products() {
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("search")?.toLowerCase() || "";
-  const categoryIdFromUrl = searchParams.get("categoryId");
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [itemsPerPage, setItemsPerPage] = useState(Number(searchParams.get("limit")) || 8);
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "");
@@ -56,7 +55,14 @@ export default function Products() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await getProducts(currentPage, itemsPerPage);
+        const res = await getProducts({
+                            page: currentPage,
+                            limit: itemsPerPage,
+                            category: categoryFilter,
+                            subcategory: subcategoryFilter,
+                            type: typeFilter,
+                            sort
+                          });
         setProducts(res.data);       // масив продуктів
         setTotalPages(res.pagination.totalPages); // кількість сторінок
       } catch (err: any) {
@@ -68,22 +74,6 @@ export default function Products() {
     };
     fetchProducts();
   }, [currentPage, itemsPerPage]);
-  
-  useEffect(() => {
-    if (!categoryIdFilter || products.length === 0) return;
-    const category = products.find(
-      p => p.category.id === categoryIdFilter
-    )?.category;
-    if (category) {
-      setCategoryFilter(category.name);
-    }
-  }, [categoryIdFilter, products]);
-  
-  useEffect(() => {
-    if (categoryIdFromUrl) {
-      setCategoryIdFilter(Number(categoryIdFromUrl));
-    }
-  }, [categoryIdFromUrl]);
 
   useEffect(() => setCurrentPage(1), [categoryFilter, subcategoryFilter, typeFilter, searchQuery, itemsPerPage]);
 
@@ -102,7 +92,6 @@ export default function Products() {
     .filter(p =>
       !p.is_hidden &&
       (!categoryFilter || p.category.name === categoryFilter) &&
-      (!categoryIdFilter || p.category.id === categoryIdFilter) &&
       (!subcategoryFilter || p.subcategory?.name === subcategoryFilter) &&
       (!typeFilter || p.type?.name === typeFilter) &&
       (!searchQuery || p.sku.toLowerCase().includes(searchQuery))
@@ -256,6 +245,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
