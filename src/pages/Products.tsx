@@ -160,15 +160,35 @@ export default function Products() {
           </div>
 
           <Filters
-            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))} // {id, name}[]
-            subcategories={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []}
-            types={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.find(s => s.id === subcategoryFilter)?.types?.map(t => ({ id: t.id, name: t.name })) || []}
-            categoryFilter={categoryFilter}         // number | undefined
-            subcategoryFilter={subcategoryFilter}   // number | undefined
-            typeFilter={typeFilter}                 // number | undefined
-            onCategoryChange={id => setCategoryFilter(Number(id))}
-            onSubcategoryChange={id => setSubcategoryFilter(Number(id))}
-            onTypeChange={id => setTypeFilter(Number(id))}
+            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))}
+            subcategories={
+              categoriesData
+                .find(c => c.id === categoryFilter)
+                ?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []
+            }
+            types={
+              categoriesData
+                .find(c => c.id === categoryFilter)
+                ?.subcategories?.find(s => s.id === subcategoryFilter)
+                ?.types?.map(t => ({ id: t.id, name: t.name })) || []
+            }
+            categoryFilter={categoryFilter}
+            subcategoryFilter={subcategoryFilter}
+            typeFilter={typeFilter}
+            sort={sort}
+            itemsPerPage={itemsPerPage}
+            onCategoryChange={id => {
+              setCategoryFilter(id);
+              setSubcategoryFilter(undefined);
+              setTypeFilter(undefined);
+            }}
+            onSubcategoryChange={id => {
+              setSubcategoryFilter(id);
+              setTypeFilter(undefined);
+            }}
+            onTypeChange={id => setTypeFilter(id)}
+            onSortChange={value => setSort(value)}
+            onItemsPerPageChange={value => setItemsPerPage(value)}
           />
         </aside>
 
@@ -230,6 +250,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
