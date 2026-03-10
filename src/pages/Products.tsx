@@ -80,9 +80,9 @@ export default function Products() {
   const filtered = products
     .filter(p =>
       !p.is_hidden &&
-      (!categoryFilter || p.category.name === categoryFilter) &&
-      (!subcategoryFilter || p.subcategory?.name === subcategoryFilter) &&
-      (!typeFilter || p.type?.name === typeFilter) &&
+      (!categoryFilter || p.category.id === categoryFilter) &&
+      (!subcategoryFilter || p.subcategory?.id === subcategoryFilter) &&
+      (!typeFilter || p.type?.id === typeFilter) &&
       (!searchQuery || p.sku.toLowerCase().includes(searchQuery))
     )
     .sort((a, b) => {
@@ -166,9 +166,9 @@ export default function Products() {
             categoryFilter={categoryFilter}         // number | undefined
             subcategoryFilter={subcategoryFilter}   // number | undefined
             typeFilter={typeFilter}                 // number | undefined
-            onCategoryChange={id => { setCategoryFilter(id); setSubcategoryFilter(undefined); setTypeFilter(undefined); }}
-            onSubcategoryChange={id => { setSubcategoryFilter(id); setTypeFilter(undefined); }}
-            onTypeChange={id => setTypeFilter(id)}
+            onCategoryChange={id => setCategoryFilter(Number(id))}
+            onSubcategoryChange={id => setSubcategoryFilter(Number(id))}
+            onTypeChange={id => setTypeFilter(Number(id))}
           />
         </aside>
 
@@ -230,6 +230,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
