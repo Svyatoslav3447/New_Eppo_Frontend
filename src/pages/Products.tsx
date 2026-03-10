@@ -37,7 +37,6 @@ export default function Products() {
   const { addToCart } = useCart();
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [categoriesData, setCategoriesData] = useState<any[]>([]);  
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [categoriesData, setCategoriesData] = useState<Category[]>([]);
@@ -178,21 +177,12 @@ export default function Products() {
           </div>
 
           <Filters
-            categories={categoriesData.map((c: Category) => c.name)}
-            subcategories={
-              categoriesData
-                .find((c: Category) => c.id === categoryFilter)
-                ?.subcategories?.map((s: Subcategory) => s.name) || []
-            }
-            types={
-              categoriesData
-                .find((c: Category) => c.id === categoryFilter)
-                ?.subcategories?.find((s: Subcategory) => s.id === subcategoryFilter)
-                ?.types?.map((t: Type) => t.name) || []
-            }
-            categoryFilter={categoryFilter?.toString() || ""}
-            subcategoryFilter={subcategoryFilter?.toString() || ""}
-            typeFilter={typeFilter?.toString() || ""}
+            categories={categoriesData.map(c => ({ id: c.id, name: c.name }))}
+            subcategories={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.map(s => ({ id: s.id, name: s.name })) || []}
+            types={categoriesData.find(c => c.id === categoryFilter)?.subcategories?.find(s => s.id === subcategoryFilter)?.types?.map(t => ({ id: t.id, name: t.name })) || []}
+            categoryFilter={categoryFilter?}
+            subcategoryFilter={subcategoryFilter?}
+            typeFilter={typeFilter?}
             sort={sort}
             itemsPerPage={itemsPerPage}
             onCategoryChange={value => setCategoryFilter(Number(value))}
@@ -261,6 +251,7 @@ export default function Products() {
     </div>
   );
 }
+
 
 
 
