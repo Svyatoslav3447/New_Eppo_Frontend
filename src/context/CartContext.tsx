@@ -87,20 +87,36 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // 🔄 Синхронізація кошика з сервером через SSE
   const syncCart = async () => {
     try {
-      const res = await axios.get(`${API_URL}/products`);
-      const products: BackendProduct[] = Array.isArray(res.data)
-        ? res.data
-        : res.data.data ?? [];
+  
+      const ids = items.map(i => i.id);
+  
+      if (!ids.length) return;
+  
+      const res = await axios.get(`${API_URL}/products/by-ids`, {
+        params: { ids: ids.join(",") }
+      });
+  
+      const products: BackendProduct[] = res.data;
   
       setItems(prev =>
         prev.map(item => {
+  
           const product = products.find(p => p.id === item.id);
+  
           if (!product || product.is_hidden) {
             return { ...item, isUnavailable: true };
           }
-          return { ...item, price_grn: product.price_grn, sku: product.sku, isUnavailable: false };
+  
+          return {
+            ...item,
+            price_grn: product.price_grn,
+            sku: product.sku,
+            isUnavailable: false
+          };
+  
         })
       );
+  
     } catch (err) {
       console.error("Sync failed", err);
     }
@@ -145,4 +161,5 @@ export const useCart = () => {
   return context;
 
 };
+
 
