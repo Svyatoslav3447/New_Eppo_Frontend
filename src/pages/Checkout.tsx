@@ -42,6 +42,7 @@ export default function Checkout() {
   const [success, setSuccess] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const BASE_URL = "https://new-eppo.onrender.com";
 
   // --- Розрахунок знижки ---
   const availableItems = items.filter(i => !i.isUnavailable);
@@ -209,7 +210,7 @@ export default function Checkout() {
                   >
                     <div className="flex items-center gap-3">
                       <img
-                        src={`${API_URL}/images/products/${i.sku}.webp`}
+                        src={`${BASE_URL}/images/products/${i.sku}.webp`}
                         alt={i.sku}
                         className="w-16 h-16 object-cover rounded"
                         onError={(e) => {
