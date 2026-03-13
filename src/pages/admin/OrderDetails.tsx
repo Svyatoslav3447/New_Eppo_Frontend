@@ -59,7 +59,7 @@ export default function OrderDetails() {
   const [error, setError] = useState("");
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
+  const BASE_URL = "https://new-eppo.onrender.com";
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -190,7 +190,7 @@ export default function OrderDetails() {
           return (
             <div key={item.id} className="border rounded p-4 flex flex-col sm:flex-row items-start gap-2 bg-white shadow-sm">
               <img
-                src={`${API_URL}/images/products/${item.product.sku}.webp`}
+                src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
                 alt={item.product.sku}
                 className="w-full h-40 object-contain mb-2"
                 onError={(e) =>
