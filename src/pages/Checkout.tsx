@@ -201,7 +201,12 @@ export default function Checkout() {
                 <p className="text-gray-500">Кошик порожній</p>
               ) : (
                 items.map((i) => (
-                  <div key={`${i.id}-${JSON.stringify(i.selectedParams)}`} className="flex items-center justify-between border-b pb-2 mb-2">
+                  <div
+                    key={`${i.id}-${JSON.stringify(i.selectedParams)}`}
+                    className={`flex items-center justify-between border-b pb-2 mb-2 ${
+                      i.isUnavailable ? "opacity-60" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
                       <img
                         src={`${API_URL}/images/products/${i.sku}.webp`}
@@ -213,6 +218,12 @@ export default function Checkout() {
                       />
                       <div>
                         <div className="font-medium">{i.sku}</div>
+                        
+                        {i.isUnavailable && (
+                          <div className="text-red-500 text-xs font-semibold">
+                            Товар більше недоступний
+                          </div>
+                        )}
                         {/* Вибрані параметри */}
                         {i.selectedParams && Object.keys(i.selectedParams).length > 0 && (
                           <div className="text-xs text-gray-500">
@@ -221,7 +232,9 @@ export default function Checkout() {
                             ))}
                           </div>
                         )}
-                        <div className="text-sm text-gray-500">{i.quantity} × {i.price_grn.toFixed(2)} ₴</div>
+                        <div className="text-sm text-gray-500">
+                          {i.isUnavailable ? "Недоступний" : `${i.quantity} × ${i.price_grn.toFixed(2)} ₴`}
+                        </div>
                       </div>
                     </div>
                     <div className="font-bold text-purple-700">{(i.quantity * i.price_grn).toFixed(2)} ₴</div>
