@@ -118,7 +118,7 @@ export default function OrderDetails() {
     >((acc, item) => {
       if (!acc[item.product.sku]) acc[item.product.sku] = { item, paramCounts: {} };
 
-      if (item.selectedParams) {
+      if (item.selectedParams && Object.keys(item.selectedParams).length > 0) {
         Object.entries(item.selectedParams).forEach(([paramId, value]) => {
           const paramName = item.selectedParamsNames?.[paramId] ?? `Параметр ${paramId}`;
           const key = `${paramName}: ${value}`;
@@ -129,9 +129,12 @@ export default function OrderDetails() {
           }
         });
       } else {
-        // Якщо параметрів немає
-        if (!acc[item.product.sku].paramCounts["-"]) acc[item.product.sku].paramCounts["-"] = item.quantity;
-        else acc[item.product.sku].paramCounts["-"] += item.quantity;
+        // Товари без параметрів
+        if (!acc[item.product.sku].paramCounts["Без параметрів"]) {
+          acc[item.product.sku].paramCounts["Без параметрів"] = item.quantity;
+        } else {
+          acc[item.product.sku].paramCounts["Без параметрів"] += item.quantity;
+        }
       }
 
       return acc;
