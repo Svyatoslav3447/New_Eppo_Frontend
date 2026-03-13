@@ -44,7 +44,8 @@ export default function Checkout() {
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // --- Розрахунок знижки ---
-  const total = items.reduce((acc, i) => acc + i.price_grn * i.quantity, 0);
+  const availableItems = items.filter(i => !i.isUnavailable);
+  const total = availableItems.reduce((acc, i) => acc + i.price_grn * i.quantity, 0);
   const discounts = [
     { amount: 10000, percent: 12 },
     { amount: 5000, percent: 7 },
@@ -144,6 +145,9 @@ export default function Checkout() {
     setError("");
 
     try {
+      if (availableItems.length === 0) {
+        return setError("У кошику немає доступних товарів");
+      }
       await axios.post(`${API_URL}/orders`, {
         lastName,
         firstName,
@@ -157,7 +161,7 @@ export default function Checkout() {
         comment,
         discount_percent: currentDiscount,
         total_after_discount: discountedTotal,
-        items: items.map((i) => ({
+        items: availableItems.map((i) => ({
           productId: i.id,
           quantity: i.quantity,
           selectedParams: i.selectedParams || {},
