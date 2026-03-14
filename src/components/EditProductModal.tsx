@@ -45,7 +45,6 @@ export default function EditProductModal({
   initialParameters = [],
 }: Props) {
   const [parameters, setParameters] = useState<ParameterValues[]>(initialParameters);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
   const [form, setForm] = useState<{
     sku: string;
