@@ -14,19 +14,24 @@ function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5)
 
   const sideButtons = Math.floor((maxButtons - 1) / 2);
 
-  let startPage = Math.max(2, currentPage - sideButtons);
-  let endPage = Math.min(totalPages - 1, currentPage + sideButtons);
+  let startPage = Math.max(currentPage - sideButtons, 2);
+  let endPage = Math.min(currentPage + sideButtons, totalPages - 1);
 
-  // Переконаємось, що у нас завжди показано maxButtons
-  const visibleCount = endPage - startPage + 1;
-  if (visibleCount < maxButtons - 2) {
-    const extra = maxButtons - 2 - visibleCount;
-    if (startPage > 2) {
-      startPage = Math.max(2, startPage - extra);
-    } else if (endPage < totalPages - 1) {
-      endPage = Math.min(totalPages - 1, endPage + extra);
-    }
+  // Якщо зліва мало сторінок, зсуваємо вправо
+  if (currentPage <= sideButtons + 1) {
+    startPage = 2;
+    endPage = maxButtons - 1;
   }
+
+  // Якщо справа мало сторінок, зсуваємо вліво
+  if (currentPage >= totalPages - sideButtons) {
+    startPage = totalPages - (maxButtons - 2);
+    endPage = totalPages - 1;
+  }
+
+  // Гарантуємо межі
+  startPage = Math.max(startPage, 2);
+  endPage = Math.min(endPage, totalPages - 1);
 
   pages.push(1); // перша сторінка
 
