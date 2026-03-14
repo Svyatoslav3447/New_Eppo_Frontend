@@ -118,11 +118,11 @@ export default function ProductsList() {
                   <td className="border p-2 text-center">{product.id}</td>
                   <td className="border p-2">
                     <img
-                      src={`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/images/products/${product.sku}.webp`}
+                      src={`${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/images/products/${product.sku}.webp`}
                       alt={product.sku}
                       className="w-16 h-16 object-contain"
                       onError={(e) =>
-                        (e.currentTarget.src = `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/images/products/default.webp`)
+                        (e.currentTarget.src = `${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/images/products/default.webp`)
                       }
                     />
                   </td>
