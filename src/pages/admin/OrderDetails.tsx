@@ -59,7 +59,7 @@ export default function OrderDetails() {
   const [error, setError] = useState("");
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-  const BASE_URL = "https://new-eppo.onrender.com";
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -130,10 +130,10 @@ export default function OrderDetails() {
         });
       } else {
         // Товари без параметрів
-        if (!acc[item.product.sku].paramCounts["Без параметрів"]) {
-          acc[item.product.sku].paramCounts["Без параметрів"] = item.quantity;
+        if (!acc[item.product.sku].paramCounts[""]) {
+          acc[item.product.sku].paramCounts[""] = item.quantity;
         } else {
-          acc[item.product.sku].paramCounts["Без параметрів"] += item.quantity;
+          acc[item.product.sku].paramCounts[""] += item.quantity;
         }
       }
 
@@ -194,7 +194,7 @@ export default function OrderDetails() {
                 alt={item.product.sku}
                 className="w-full h-40 object-contain mb-2"
                 onError={(e) =>
-                  (e.currentTarget.src = `${API_URL}/images/products/default.webp`)
+                  (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
                 }
               />
               <div className="flex-1 space-y-1 text-sm">
@@ -243,11 +243,11 @@ export default function OrderDetails() {
                   <td className="border p-2">{i + 1}</td>
                   <td className="border p-2">
                     <img
-                      src={`${API_URL}/images/products/${item.product.sku}.webp`}
+                      src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
                       alt={item.product.sku}
                       className="w-16 h-16 object-contain"
                       onError={(e) =>
-                        (e.currentTarget.src = `${API_URL}/images/products/default.webp`)
+                        (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
                       }
                     />
                   </td>
