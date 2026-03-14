@@ -90,9 +90,8 @@ export default function OrderDetails() {
       alert("Не вдалося змінити статус");
     }
   };
-
   const handlePrint = () => {
-    if (!printRef.current) return;
+    if (!printRef.current || !order) return;
   
     const printWindow = window.open("", "_blank", "width=700,height=900");
     if (!printWindow) return;
@@ -100,78 +99,42 @@ export default function OrderDetails() {
     const html = `
       <html>
         <head>
-          <title>Замовлення №${order?.id}</title>
+          <title>Замовлення №${order.id}</title>
           <style>
-            /* Базові стилі */
-            body {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              color: #333;
-              margin: 20px;
-            }
-            h1 {
-              text-align: center;
-              font-size: 24px;
-              margin-bottom: 10px;
-              color: #1a202c;
-            }
-            .customer-info, .summary {
-              margin-bottom: 20px;
-            }
-            .customer-info p {
-              margin: 4px 0;
-              font-size: 14px;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 10px;
-            }
-            th, td {
-              border: 1px solid #ccc;
-              padding: 6px 8px;
-              font-size: 13px;
-            }
-            th {
-              background-color: #f5f5f5;
-              font-weight: 600;
-            }
-            tbody tr:nth-child(even) {
-              background-color: #fafafa;
-            }
-            tfoot td {
-              font-weight: bold;
-              font-size: 14px;
-            }
-            .discount {
-              color: #d97706; /* оранжевий */
-            }
-            .total-after-discount {
-              color: #16a34a; /* зелений */
-            }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#333; margin:20px; }
+            h1 { text-align:center; font-size:24px; margin-bottom:10px; }
+            .customer-info p { margin:4px 0; font-size:14px; }
+            table { width:100%; border-collapse:collapse; margin-top:10px; }
+            th, td { border:1px solid #ccc; padding:6px 8px; font-size:13px; text-align:center; }
+            th { background-color:#f5f5f5; font-weight:600; }
+            tbody tr:nth-child(even){ background-color:#fafafa; }
+            tfoot td { font-weight:bold; font-size:14px; }
+            .discount { color:#d97706; }
+            .total-after-discount { color:#16a34a; }
+            img { width:50px; height:50px; object-fit:contain; }
           </style>
         </head>
         <body>
-          <h1>Замовлення №${order?.id}</h1>
-  
+          <h1>Замовлення №${order.id}</h1>
           <div class="customer-info">
-            <p><b>Імʼя:</b> ${order?.firstName || "-"}</p>
-            <p><b>Прізвище:</b> ${order?.lastName || "-"}</p>
-            <p><b>Телефон:</b> ${order?.phone || "-"}</p>
-            <p><b>Дата:</b> {order.created_at ? new Date(order.created_at).toLocaleString() : "-"}</p>
-            <p><b>Доставка:</b> ${order?.delivery ? deliveryLabels[order.delivery] ?? order.delivery : "-"}</p>
-            <p><b>Місто:</b> ${order?.city || "-"}</p>
-            <p><b>Відділення:</b> ${order?.npBranch || "-"}</p>
-            <p><b>Оплата:</b> ${order?.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
-            <p><b>Підтвердження дзвінком:</b> ${order?.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
-            <p><b>Коментар:</b> ${order?.comment || "-"}</p>
+            <p><b>Імʼя:</b> ${order.firstName || "-"}</p>
+            <p><b>Прізвище:</b> ${order.lastName || "-"}</p>
+            <p><b>Телефон:</b> ${order.phone || "-"}</p>
+            <p><b>Дата:</b> ${order.created_at ? new Date(order.created_at).toLocaleString() : "-"}</p>
+            <p><b>Доставка:</b> ${order.delivery ? deliveryLabels[order.delivery] ?? order.delivery : "-"}</p>
+            <p><b>Місто:</b> ${order.city || "-"}</p>
+            <p><b>Відділення:</b> ${order.npBranch || "-"}</p>
+            <p><b>Оплата:</b> ${order.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
+            <p><b>Підтвердження дзвінком:</b> ${order.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
+            <p><b>Коментар:</b> ${order.comment || "-"}</p>
           </div>
   
           <table>
             <thead>
               <tr>
                 <th>№</th>
+                <th>Фото</th>
                 <th>Артикул</th>
-                <th>Назва</th>
                 <th>Параметри</th>
                 <th>К-сть</th>
                 <th>Ціна (USD)</th>
@@ -185,13 +148,16 @@ export default function OrderDetails() {
                 const sum = (Number(item.price_usd) * totalQty).toFixed(2);
                 const params = Object.entries(paramCounts)
                   .filter(([k]) => k)
-                  .map(([k, v]) => `${k} - ${v} шт.`)
+                  .map(([k,v]) => `${k} - ${v} шт.`)
                   .join(", ") || "-";
+  
+                const imgSrc = `${BASE_URL}/images/products/${item.product.sku}.webp`;
+  
                 return `
                   <tr>
                     <td>${i+1}</td>
+                    <td><img src="${imgSrc}" onerror="this.src='${BASE_URL}/images/products/default.webp'"/></td>
                     <td>${item.product.sku}</td>
-                    <td>${item.product.name}</td>
                     <td>${params}</td>
                     <td>${totalQty}</td>
                     <td>${price}</td>
@@ -227,7 +193,6 @@ export default function OrderDetails() {
     printWindow.print();
     printWindow.close();
   };
-
 
   if (loading) return <p className="p-6">Завантаження...</p>;
   if (error) return <p className="p-6 text-red-600">{error}</p>;
