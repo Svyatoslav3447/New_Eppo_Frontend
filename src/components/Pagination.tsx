@@ -38,7 +38,7 @@ export function Pagination({
   if (start > 2) pages.push('...');
 
   // Додаємо сторінки між першою і останньою
-  for (let i = start; i <= end; i++) {
+  for (let i = start; i <= 5; i++) {
     pages.push(i);
   }
 
