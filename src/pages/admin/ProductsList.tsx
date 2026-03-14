@@ -13,24 +13,34 @@ export default function ProductsList() {
 
   // Для пошуку
   const [search, setSearch] = useState("");
-
-  const fetchProducts = async () => {
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  
+  const fetchProducts = async (pageNum = 1) => {
     try {
       setLoading(true);
       const res = await getProducts({
-        page: 1,
-        limit: 1000,
-        search
+        page: pageNum,
+        limit: perPage,
+        search,
       });
-      setProducts(res.data);
+  
+      setProducts(res.data);                     
+      setPage(pageNum);                          
+      setTotalPages(res.pagination.totalPages);  
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(1);
   }, []);
+  
+  useEffect(() => {
+    fetchProducts(1);
+  }, [search]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -47,8 +57,8 @@ export default function ProductsList() {
     setLoading(true);
     try {
       const res = await getProducts({
-        page: 1,
-        limit: 1000, 
+        page: pageNum,
+        limit: perPage,
         search,
       });
       setProducts(res.data);
@@ -159,6 +169,23 @@ export default function ProductsList() {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-between mt-4">
+            <button
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              disabled={page <= 1}
+              onClick={() => fetchProducts(page - 1)}
+            >
+              Назад
+            </button>
+            <span>Сторінка {page} з {totalPages}</span>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              disabled={page >= totalPages}
+              onClick={() => fetchProducts(page + 1)}
+            >
+              Вперед
+            </button>
+          </div>
         </div>
       )}
 
