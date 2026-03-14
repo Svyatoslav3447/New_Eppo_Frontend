@@ -18,11 +18,11 @@ export default function AdminLayout() {
 
   const navLinks = [
     ["/", "Головна"],
-    ["/admin", "Dashboard"],
-    ["/admin/productsList", "Товари"],
+    ["/admin", "Дошка"],
+    ["/admin/productsList", "Список товарів"],
     ["/admin/productsCreate", "Створити товар"],
-    ["/admin/ordersList", "Замовлення"],
-    ["/admin/categoriesAdmin", "Категорії"],
+    ["/admin/ordersList", "Список замовлень"],
+    ["/admin/categoriesAdmin", "Керувати категоріями"],
     ["/admin/homeEdit", "Редагувати головну сторінку"],
   ] as const;
 
