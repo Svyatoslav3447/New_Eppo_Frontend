@@ -98,12 +98,6 @@ export default function ProductsList() {
         >
           Знайти
         </button>
-      </div>
-
-      {loading ? (
-        <p>Завантаження...</p>
-      ) : (
-        <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
@@ -112,6 +106,12 @@ export default function ProductsList() {
           />
           Показати всі приховані товари
         </label>
+      </div>
+
+      {loading ? (
+        <p>Завантаження...</p>
+      ) : (
+        <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
           <table className="min-w-full border-collapse border border-gray-300">
             <thead className="bg-gray-200">
               <tr>
