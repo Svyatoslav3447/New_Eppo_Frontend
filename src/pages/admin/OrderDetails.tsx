@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/axios";
 
@@ -41,6 +41,8 @@ interface Order {
 export default function OrderDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const printRef = useRef<HTMLDivElement>(null);
+
   const paymentLabels: Record<string, string> = {
     card: "На карту",
     cash: "Накладений платіж",
@@ -89,6 +91,16 @@ export default function OrderDetails() {
     }
   };
 
+  const handlePrint = () => {
+    if (!printRef.current) return;
+    const printContents = printRef.current.innerHTML;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload(); // відновлюємо React
+  };
+
   if (loading) return <p className="p-6">Завантаження...</p>;
   if (error) return <p className="p-6 text-red-600">{error}</p>;
   if (!order) return null;
@@ -103,16 +115,13 @@ export default function OrderDetails() {
   const totalAfterDiscountUSD = Number(order.total_after_discount ?? totalUSD);
   const totalAfterDiscountUAH = totalAfterDiscountUSD * rate;
 
-  // ------------------------
-  // Групування товарів за SKU з підрахунком кожного значення параметра
-  // ------------------------
   const groupedItems = Object.values(
     order.items.reduce<
       Record<
         string,
         {
           item: OrderItem;
-          paramCounts: Record<string, number>; // "Розмір: 15" → кількість
+          paramCounts: Record<string, number>;
         }
       >
     >((acc, item) => {
@@ -122,19 +131,10 @@ export default function OrderDetails() {
         Object.entries(item.selectedParams).forEach(([paramId, value]) => {
           const paramName = item.selectedParamsNames?.[paramId] ?? `Параметр ${paramId}`;
           const key = `${paramName}: ${value}`;
-          if (!acc[item.product.sku].paramCounts[key]) {
-            acc[item.product.sku].paramCounts[key] = item.quantity;
-          } else {
-            acc[item.product.sku].paramCounts[key] += item.quantity;
-          }
+          acc[item.product.sku].paramCounts[key] = (acc[item.product.sku].paramCounts[key] || 0) + item.quantity;
         });
       } else {
-        // Товари без параметрів
-        if (!acc[item.product.sku].paramCounts[""]) {
-          acc[item.product.sku].paramCounts[""] = item.quantity;
-        } else {
-          acc[item.product.sku].paramCounts[""] += item.quantity;
-        }
+        acc[item.product.sku].paramCounts[""] = (acc[item.product.sku].paramCounts[""] || 0) + item.quantity;
       }
 
       return acc;
@@ -152,154 +152,157 @@ export default function OrderDetails() {
           ← Назад
         </button>
         <button
-          onClick={() => window.print()}
+          onClick={handlePrint}
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
           Друк
         </button>
       </div>
 
-      <h1 className="text-2xl font-bold mb-4">Замовлення №{order.id}</h1>
+      {/* Весь контент для друку */}
+      <div ref={printRef}>
+        <h1 className="text-2xl font-bold mb-4">Замовлення №{order.id}</h1>
 
-      {/* Інформація про замовника */}
-      <div className="border rounded p-4 space-y-2 bg-white shadow-sm print:border-0 print:shadow-none">
-        <p><b>Імʼя:</b> {order.firstName || "-"}</p>
-        <p><b>Прізвище:</b> {order.lastName || "-"}</p>
-        <p><b>Телефон:</b> {order.phone || "-"}</p>
-        <p><b>Дата:</b> {new Date(order.created_at).toLocaleString()}</p>
-        <p><b>Спосіб доставки:</b> {order.delivery ? deliveryLabels[order.delivery] ?? order.delivery : "-"}</p>
-        <p><b>Місто:</b> {order.city || "-"}</p>
-        <p><b>Відділення Нової Пошти:</b> {order.npBranch || "-"}</p>
-        <p><b>Спосіб оплати:</b> {order.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
-        <p><b>Підтвердження дзвінком:</b> {order.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
-        <p><b>Коментар:</b> {order.comment || "-"}</p>
-        <div className="flex items-center gap-2">
-          <b>Статус:</b>
-          <select
-            value={status}
-            onChange={(e) => changeStatus(e.target.value as OrderStatus)}
-            className="border px-2 py-1 rounded"
-          >
-            {Object.values(OrderStatus).map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+        {/* Інформація про замовника */}
+        <div className="border rounded p-4 space-y-2 bg-white shadow-sm">
+          <p><b>Імʼя:</b> {order.firstName || "-"}</p>
+          <p><b>Прізвище:</b> {order.lastName || "-"}</p>
+          <p><b>Телефон:</b> {order.phone || "-"}</p>
+          <p><b>Дата:</b> {new Date(order.created_at).toLocaleString()}</p>
+          <p><b>Спосіб доставки:</b> {order.delivery ? deliveryLabels[order.delivery] ?? order.delivery : "-"}</p>
+          <p><b>Місто:</b> {order.city || "-"}</p>
+          <p><b>Відділення Нової Пошти:</b> {order.npBranch || "-"}</p>
+          <p><b>Спосіб оплати:</b> {order.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
+          <p><b>Підтвердження дзвінком:</b> {order.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
+          <p><b>Коментар:</b> {order.comment || "-"}</p>
+          <div className="flex items-center gap-2">
+            <b>Статус:</b>
+            <select
+              value={status}
+              onChange={(e) => changeStatus(e.target.value as OrderStatus)}
+              className="border px-2 py-1 rounded"
+            >
+              {Object.values(OrderStatus).map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
 
-      {/* Товари для мобільного */}
-      <div className="space-y-4 sm:hidden print:block">
-        {groupedItems.map(({ item, paramCounts }) => {
-          const priceUSD = Number(item.price_usd);
-          const priceUAH = priceUSD * rate;
-          const totalQty = Object.values(paramCounts).reduce((a,b)=>a+b,0);
-          const sumUSD = priceUSD * totalQty;
-          const sumUAH = sumUSD * rate;
+        {/* Товари */}
+        <div className="space-y-4 sm:hidden">
+          {groupedItems.map(({ item, paramCounts }) => {
+            const priceUSD = Number(item.price_usd);
+            const priceUAH = priceUSD * rate;
+            const totalQty = Object.values(paramCounts).reduce((a,b)=>a+b,0);
+            const sumUSD = priceUSD * totalQty;
+            const sumUAH = sumUSD * rate;
 
-          return (
-            <div key={item.id} className="border rounded p-4 flex flex-col sm:flex-row items-start gap-2 bg-white shadow-sm print:border print:p-2 print:shadow-none">
-              <img
-                src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
-                alt={item.product.sku}
-                className="w-full h-40 object-contain mb-2 print:w-24 print:h-24"
-                onError={(e) =>
-                  (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
-                }
-              />
-              <div className="flex-1 space-y-1 text-sm">
-                <p><b>Артикул:</b> {item.product.sku}</p>
-                <p><b>Ціна:</b> {priceUSD.toFixed(2)} USD / {priceUAH.toFixed(2)} грн</p>
-                <p><b>Сума:</b> {sumUSD.toFixed(2)} USD / {sumUAH.toFixed(2)} грн</p>
-                {Object.entries(paramCounts).filter(([k]) => k).length > 0 && (
-                  <div className="mt-1">
-                    <b>Вибрані параметри:</b>
-                    <ul className="list-disc list-inside text-gray-600">
-                      {Object.entries(paramCounts)
-                        .filter(([paramWithName]) => paramWithName)
-                        .map(([paramWithName, qty], idx) => (
-                          <li key={idx}>{paramWithName} - {qty} шт.</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+            return (
+              <div key={item.id} className="border rounded p-4 flex flex-col sm:flex-row items-start gap-2 bg-white shadow-sm">
+                <img
+                  src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
+                  alt={item.product.sku}
+                  className="w-full h-40 object-contain mb-2"
+                  onError={(e) =>
+                    (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
+                  }
+                />
+                <div className="flex-1 space-y-1 text-sm">
+                  <p><b>Артикул:</b> {item.product.sku}</p>
+                  <p><b>Ціна:</b> {priceUSD.toFixed(2)} USD / {priceUAH.toFixed(2)} грн</p>
+                  <p><b>Сума:</b> {sumUSD.toFixed(2)} USD / {sumUAH.toFixed(2)} грн</p>
+                  {Object.entries(paramCounts).filter(([k]) => k).length > 0 && (
+                    <div className="mt-1">
+                      <b>Вибрані параметри:</b>
+                      <ul className="list-disc list-inside text-gray-600">
+                        {Object.entries(paramCounts)
+                          .filter(([paramWithName]) => paramWithName)
+                          .map(([paramWithName, qty], idx) => (
+                            <li key={idx}>{paramWithName} - {qty} шт.</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {/* Таблиця для десктопу */}
-      <div className="hidden sm:block overflow-x-auto print:block">
-        <table className="w-full border-collapse border print:border">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border p-2">№</th>
-              <th className="border p-2">Фото</th>
-              <th className="border p-2">Артикул</th>
-              <th className="border p-2">Параметри</th>
-              <th className="border p-2">К-сть</th>
-              <th className="border p-2">Ціна (USD / грн)</th>
-              <th className="border p-2">Сума (USD / грн)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groupedItems.map(({ item, paramCounts }, i) => {
-              const priceUSD = Number(item.price_usd);
-              const priceUAH = priceUSD * rate;
-              const totalQty = Object.values(paramCounts).reduce((a,b)=>a+b,0);
-              const sumUSD = priceUSD * totalQty;
-              const sumUAH = sumUSD * rate;
-              return (
-                <tr key={item.id}>
-                  <td className="border p-2">{i + 1}</td>
-                  <td className="border p-2">
-                    <img
-                      src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
-                      alt={item.product.sku}
-                      className="w-16 h-16 object-contain"
-                      onError={(e) =>
-                        (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
-                      }
-                    />
-                  </td>
-                  <td className="border p-2">{item.product.sku}</td>
-                  <td className="border p-2">
-                    <ul className="list-disc list-inside text-gray-600">
-                      {Object.entries(paramCounts)
-                        .filter(([paramWithName]) => paramWithName)
-                        .map(([paramWithName, qty], idx) => (
-                          <li key={idx}>{paramWithName} - {qty} шт.</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="border p-2">{totalQty}</td>
-                  <td className="border p-2">{priceUSD.toFixed(2)} / {priceUAH.toFixed(2)}</td>
-                  <td className="border p-2">{sumUSD.toFixed(2)} / {sumUAH.toFixed(2)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            <tr className="font-bold">
-              <td colSpan={6} className="border p-2 text-right">Разом:</td>
-              <td className="border p-2">{totalUSD.toFixed(2)} / {totalUAH.toFixed(2)}</td>
-            </tr>
-            {discountPercent > 0 && (
-              <>
-                <tr className="font-bold text-yellow-700">
-                  <td colSpan={6} className="border p-2 text-right">Знижка ({discountPercent}%):</td>
-                  <td className="border p-2">
-                    - {(totalUSD - totalAfterDiscountUSD).toFixed(2)} / - {(totalUAH - totalAfterDiscountUAH).toFixed(2)}
-                  </td>
-                </tr>
-                <tr className="font-bold text-green-800">
-                  <td colSpan={6} className="border p-2 text-right">Разом після знижки:</td>
-                  <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)} / {totalAfterDiscountUAH.toFixed(2)}</td>
-                </tr>
-              </>
-            )}
-          </tfoot>
-        </table>
+        {/* Таблиця для десктопу */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full border-collapse border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border p-2">№</th>
+                <th className="border p-2">Фото</th>
+                <th className="border p-2">Артикул</th>
+                <th className="border p-2">Параметри</th>
+                <th className="border p-2">К-сть</th>
+                <th className="border p-2">Ціна (USD / грн)</th>
+                <th className="border p-2">Сума (USD / грн)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groupedItems.map(({ item, paramCounts }, i) => {
+                const priceUSD = Number(item.price_usd);
+                const priceUAH = priceUSD * rate;
+                const totalQty = Object.values(paramCounts).reduce((a,b)=>a+b,0);
+                const sumUSD = priceUSD * totalQty;
+                const sumUAH = sumUSD * rate;
+                return (
+                  <tr key={item.id}>
+                    <td className="border p-2">{i + 1}</td>
+                    <td className="border p-2">
+                      <img
+                        src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
+                        alt={item.product.sku}
+                        className="w-16 h-16 object-contain"
+                        onError={(e) =>
+                          (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
+                        }
+                      />
+                    </td>
+                    <td className="border p-2">{item.product.sku}</td>
+                    <td className="border p-2">
+                      <ul className="list-disc list-inside text-gray-600">
+                        {Object.entries(paramCounts)
+                          .filter(([paramWithName]) => paramWithName)
+                          .map(([paramWithName, qty], idx) => (
+                            <li key={idx}>{paramWithName} - {qty} шт.</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="border p-2">{totalQty}</td>
+                    <td className="border p-2">{priceUSD.toFixed(2)} / {priceUAH.toFixed(2)}</td>
+                    <td className="border p-2">{sumUSD.toFixed(2)} / {sumUAH.toFixed(2)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="font-bold">
+                <td colSpan={6} className="border p-2 text-right">Разом:</td>
+                <td className="border p-2">{totalUSD.toFixed(2)} / {totalUAH.toFixed(2)}</td>
+              </tr>
+              {discountPercent > 0 && (
+                <>
+                  <tr className="font-bold text-yellow-700">
+                    <td colSpan={6} className="border p-2 text-right">Знижка ({discountPercent}%):</td>
+                    <td className="border p-2">
+                      - {(totalUSD - totalAfterDiscountUSD).toFixed(2)} / - {(totalUAH - totalAfterDiscountUAH).toFixed(2)}
+                    </td>
+                  </tr>
+                  <tr className="font-bold text-green-800">
+                    <td colSpan={6} className="border p-2 text-right">Разом після знижки:</td>
+                    <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)} / {totalAfterDiscountUAH.toFixed(2)}</td>
+                  </tr>
+                </>
+              )}
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   );
