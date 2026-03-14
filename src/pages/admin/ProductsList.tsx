@@ -7,48 +7,43 @@ export default function ProductsList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Модалки
+  // Для модалки редагування
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Product | null>(null);
 
-  // Пошук і фільтр
+  // Для пошуку
   const [search, setSearch] = useState("");
-  const [showHidden, setShowHidden] = useState(false);
+
   const [page, setPage] = useState(1);
   const [perPage] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
 
-  // --- Функція завантаження продуктів ---
   const fetchProducts = async (pageNum = 1) => {
-    setLoading(true);
     try {
+      setLoading(true);
       const res = await getProducts({
         page: pageNum,
         limit: perPage,
         search,
-        showHidden,
-        userRole: "ADMIN", // важливо для бекенду
-      } as any);
 
-      setProducts(res.data);
-      setPage(pageNum);
-      setTotalPages(res.pagination.totalPages);
+      });
+
+      setProducts(res.data);                     
+      setPage(pageNum);                          
+      setTotalPages(res.pagination.totalPages);  
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Монтаж компоненту ---
   useEffect(() => {
     fetchProducts(1);
   }, []);
 
-  // --- Перезапуск при зміні пошуку або чекбокса ---
   useEffect(() => {
     fetchProducts(1);
-  }, [search, showHidden]);
+  }, [search]);
 
-  // --- Видалення товару ---
   const handleDelete = async (id: number) => {
     try {
       await deleteProduct(id);
@@ -60,27 +55,57 @@ export default function ProductsList() {
     }
   };
 
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const res = await getProducts({
+        page: 1,
+        limit: perPage,
+        search,
+      });
+      setProducts(res.data);
+      setTotalPages(res.pagination.totalPages);
+      setPage(1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      handleSearch();
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-4">Список товарів</h1>
 
-      {/* Пошук і фільтр */}
+      {/* Пошук */}
       <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="Знайти товар по SKU"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <label className="flex items-center gap-1">
-          <input
-            type="checkbox"
-            checked={showHidden}
-            onChange={(e) => setShowHidden(e.target.checked)}
-          />
-          Показати тільки приховані товари
-        </label>
+      <input
+        type="text"
+        className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="Знайти товар по SKU"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <button
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        onClick={handleSearch} // тепер кнопка запускає серверний пошук
+      >
+        Знайти
+      </button>
+
+
+
+
+
+
+
+
       </div>
 
       {loading ? (
@@ -105,11 +130,12 @@ export default function ProductsList() {
               {products.map((product: Product) => (
                 <tr
                   key={product.id}
-                  className={`transition-colors ${
-                    product.is_hidden
+                  className={`
+                    transition-colors
+                    ${product.is_hidden
                       ? "bg-gray-100 text-gray-400"
-                      : "hover:bg-gray-50"
-                  }`}
+                      : "hover:bg-gray-50"}
+                  `}
                 >
                   <td className="border p-2 text-center">{product.id}</td>
                   <td className="border p-2">
@@ -155,8 +181,6 @@ export default function ProductsList() {
               ))}
             </tbody>
           </table>
-
-          {/* Пагінація */}
           <div className="flex justify-between mt-4">
             <button
               className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
@@ -186,6 +210,7 @@ export default function ProductsList() {
             fetchProducts();
             setEditingProduct(null);
           }}
+          // передаємо параметри в модалку
           initialParameters={editingProduct.parameters || []}
         />
       )}
@@ -199,4 +224,5 @@ export default function ProductsList() {
       )}
     </div>
   );
+
 }
