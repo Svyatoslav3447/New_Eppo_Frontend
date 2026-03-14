@@ -93,13 +93,141 @@ export default function OrderDetails() {
 
   const handlePrint = () => {
     if (!printRef.current) return;
-    const printContents = printRef.current.innerHTML;
-    const originalContents = document.body.innerHTML;
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    window.location.reload(); // відновлюємо React
+  
+    const printWindow = window.open("", "_blank", "width=700,height=900");
+    if (!printWindow) return;
+  
+    const html = `
+      <html>
+        <head>
+          <title>Замовлення №${order?.id}</title>
+          <style>
+            /* Базові стилі */
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              color: #333;
+              margin: 20px;
+            }
+            h1 {
+              text-align: center;
+              font-size: 24px;
+              margin-bottom: 10px;
+              color: #1a202c;
+            }
+            .customer-info, .summary {
+              margin-bottom: 20px;
+            }
+            .customer-info p {
+              margin: 4px 0;
+              font-size: 14px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 10px;
+            }
+            th, td {
+              border: 1px solid #ccc;
+              padding: 6px 8px;
+              font-size: 13px;
+            }
+            th {
+              background-color: #f5f5f5;
+              font-weight: 600;
+            }
+            tbody tr:nth-child(even) {
+              background-color: #fafafa;
+            }
+            tfoot td {
+              font-weight: bold;
+              font-size: 14px;
+            }
+            .discount {
+              color: #d97706; /* оранжевий */
+            }
+            .total-after-discount {
+              color: #16a34a; /* зелений */
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Замовлення №${order?.id}</h1>
+  
+          <div class="customer-info">
+            <p><b>Імʼя:</b> ${order?.firstName || "-"}</p>
+            <p><b>Прізвище:</b> ${order?.lastName || "-"}</p>
+            <p><b>Телефон:</b> ${order?.phone || "-"}</p>
+            <p><b>Дата:</b> ${new Date(order?.created_at).toLocaleString()}</p>
+            <p><b>Доставка:</b> ${order?.delivery ? deliveryLabels[order.delivery] ?? order.delivery : "-"}</p>
+            <p><b>Місто:</b> ${order?.city || "-"}</p>
+            <p><b>Відділення:</b> ${order?.npBranch || "-"}</p>
+            <p><b>Оплата:</b> ${order?.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
+            <p><b>Підтвердження дзвінком:</b> ${order?.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
+            <p><b>Коментар:</b> ${order?.comment || "-"}</p>
+          </div>
+  
+          <table>
+            <thead>
+              <tr>
+                <th>№</th>
+                <th>Артикул</th>
+                <th>Назва</th>
+                <th>Параметри</th>
+                <th>К-сть</th>
+                <th>Ціна (USD)</th>
+                <th>Сума (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${groupedItems.map(({ item, paramCounts }, i) => {
+                const totalQty = Object.values(paramCounts).reduce((a,b)=>a+b,0);
+                const price = Number(item.price_usd).toFixed(2);
+                const sum = (Number(item.price_usd) * totalQty).toFixed(2);
+                const params = Object.entries(paramCounts)
+                  .filter(([k]) => k)
+                  .map(([k, v]) => `${k} - ${v} шт.`)
+                  .join(", ") || "-";
+                return `
+                  <tr>
+                    <td>${i+1}</td>
+                    <td>${item.product.sku}</td>
+                    <td>${item.product.name}</td>
+                    <td>${params}</td>
+                    <td>${totalQty}</td>
+                    <td>${price}</td>
+                    <td>${sum}</td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="6" style="text-align:right;">Разом:</td>
+                <td>${totalUSD.toFixed(2)}</td>
+              </tr>
+              ${discountPercent > 0 ? `
+                <tr class="discount">
+                  <td colspan="6" style="text-align:right;">Знижка (${discountPercent}%):</td>
+                  <td>- ${(totalUSD - totalAfterDiscountUSD).toFixed(2)}</td>
+                </tr>
+                <tr class="total-after-discount">
+                  <td colspan="6" style="text-align:right;">Разом після знижки:</td>
+                  <td>${totalAfterDiscountUSD.toFixed(2)}</td>
+                </tr>
+              ` : ""}
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+  
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
+
 
   if (loading) return <p className="p-6">Завантаження...</p>;
   if (error) return <p className="p-6 text-red-600">{error}</p>;
