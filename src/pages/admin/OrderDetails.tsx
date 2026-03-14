@@ -59,6 +59,7 @@ export default function OrderDetails() {
   const [error, setError] = useState("");
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -100,7 +101,7 @@ export default function OrderDetails() {
 
   const discountPercent = Number(order.discount_percent ?? 0);
   const totalAfterDiscountUSD = Number(order.total_after_discount ?? totalUSD);
-  const totalAfterDiscountUAH = totalAfterDiscountUSD;
+  const totalAfterDiscountUAH = totalAfterDiscountUSD * rate;
 
   // ------------------------
   // Групування товарів за SKU з підрахунком кожного значення параметра
@@ -142,17 +143,26 @@ export default function OrderDetails() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="text-blue-600 hover:underline mb-4"
-      >
-        ← Назад
-      </button>
+      {/* Кнопки Назад і Друк */}
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-blue-600 hover:underline"
+        >
+          ← Назад
+        </button>
+        <button
+          onClick={() => window.print()}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Друк
+        </button>
+      </div>
 
       <h1 className="text-2xl font-bold mb-4">Замовлення №{order.id}</h1>
 
       {/* Інформація про замовника */}
-      <div className="border rounded p-4 space-y-2 bg-white shadow-sm">
+      <div className="border rounded p-4 space-y-2 bg-white shadow-sm print:border-0 print:shadow-none">
         <p><b>Імʼя:</b> {order.firstName || "-"}</p>
         <p><b>Прізвище:</b> {order.lastName || "-"}</p>
         <p><b>Телефон:</b> {order.phone || "-"}</p>
@@ -178,7 +188,7 @@ export default function OrderDetails() {
       </div>
 
       {/* Товари для мобільного */}
-      <div className="space-y-4 sm:hidden">
+      <div className="space-y-4 sm:hidden print:block">
         {groupedItems.map(({ item, paramCounts }) => {
           const priceUSD = Number(item.price_usd);
           const priceUAH = priceUSD * rate;
@@ -187,11 +197,11 @@ export default function OrderDetails() {
           const sumUAH = sumUSD * rate;
 
           return (
-            <div key={item.id} className="border rounded p-4 flex flex-col sm:flex-row items-start gap-2 bg-white shadow-sm">
+            <div key={item.id} className="border rounded p-4 flex flex-col sm:flex-row items-start gap-2 bg-white shadow-sm print:border print:p-2 print:shadow-none">
               <img
                 src={`${BASE_URL}/images/products/${item.product.sku}.webp`}
                 alt={item.product.sku}
-                className="w-full h-40 object-contain mb-2"
+                className="w-full h-40 object-contain mb-2 print:w-24 print:h-24"
                 onError={(e) =>
                   (e.currentTarget.src = `${BASE_URL}/images/products/default.webp`)
                 }
@@ -219,8 +229,8 @@ export default function OrderDetails() {
       </div>
 
       {/* Таблиця для десктопу */}
-      <div className="hidden sm:block overflow-x-auto">
-        <table className="w-full border-collapse border">
+      <div className="hidden sm:block overflow-x-auto print:block">
+        <table className="w-full border-collapse border print:border">
           <thead className="bg-gray-100">
             <tr>
               <th className="border p-2">№</th>
@@ -278,11 +288,13 @@ export default function OrderDetails() {
               <>
                 <tr className="font-bold text-yellow-700">
                   <td colSpan={6} className="border p-2 text-right">Знижка ({discountPercent}%):</td>
-                  <td className="border p-2">- {((totalUAH - totalAfterDiscountUAH) / rate).toFixed(2)} / - {((totalUAH - totalAfterDiscountUAH)).toFixed(2)}</td>
+                  <td className="border p-2">
+                    - {(totalUSD - totalAfterDiscountUSD).toFixed(2)} / - {(totalUAH - totalAfterDiscountUAH).toFixed(2)}
+                  </td>
                 </tr>
                 <tr className="font-bold text-green-800">
                   <td colSpan={6} className="border p-2 text-right">Разом після знижки:</td>
-                  <td className="border p-2">{(totalAfterDiscountUSD / rate).toFixed(2)} / {totalAfterDiscountUAH.toFixed(2)}</td>
+                  <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)} / {totalAfterDiscountUAH.toFixed(2)}</td>
                 </tr>
               </>
             )}
