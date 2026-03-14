@@ -12,28 +12,24 @@ function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5)
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
-  const sideButtons = Math.floor((maxButtons - 1) / 2);
+  const numAdjacents = Math.floor((maxButtons - 3) / 2); // кнопки навколо поточної
 
-  let startPage = Math.max(currentPage - sideButtons, 2);
-  let endPage = Math.min(currentPage + sideButtons, totalPages - 1);
+  let startPage = currentPage - numAdjacents;
+  let endPage = currentPage + numAdjacents;
 
-  // Якщо зліва мало сторінок, зсуваємо вправо
-  if (currentPage <= sideButtons + 1) {
+  // Гарантуємо, що вони не виходять за межі
+  if (startPage < 2) {
+    endPage += 2 - startPage;
     startPage = 2;
-    endPage = maxButtons - 1;
   }
-
-  // Якщо справа мало сторінок, зсуваємо вліво
-  if (currentPage >= totalPages - sideButtons) {
-    startPage = totalPages - (maxButtons - 2);
+  if (endPage > totalPages - 1) {
+    startPage -= endPage - (totalPages - 1);
     endPage = totalPages - 1;
   }
 
-  // Гарантуємо межі
   startPage = Math.max(startPage, 2);
-  endPage = Math.min(endPage, totalPages - 1);
 
-  pages.push(1); // перша сторінка
+  pages.push(1);
 
   if (startPage > 2) pages.push('...');
 
@@ -43,7 +39,7 @@ function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5)
 
   if (endPage < totalPages - 1) pages.push('...');
 
-  pages.push(totalPages); // остання сторінка
+  pages.push(totalPages);
 
   return pages;
 }
