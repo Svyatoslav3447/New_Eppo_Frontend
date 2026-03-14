@@ -50,12 +50,13 @@ export const getProducts = async ({
   subcategoryId,
   typeId,
   sort,
-  search
+  search,
+  showHidden,  // <--- додали
 }: GetProductsParams): Promise<ProductsResponse> => {
   const token = localStorage.getItem("token");
   const res = await api.get<ProductsResponse>("/products", {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    params: { page, limit, categoryId, subcategoryId, typeId, sort, search },
+    params: { page, limit, categoryId, subcategoryId, typeId, sort, search, showHidden }, // <--- передаємо
   });
   return res.data;
 };
