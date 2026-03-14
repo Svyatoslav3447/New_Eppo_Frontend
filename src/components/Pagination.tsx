@@ -2,49 +2,44 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  maxButtons?: number; // скільки кнопок показувати навколо поточної
+  maxButtons?: number; // загальна кількість кнопок (включно з 1 та totalPages)
 }
 
 export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  maxButtons = 5,
+  maxButtons = 7,
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages: (number | '...')[] = [];
-  const half = Math.floor(maxButtons / 2);
 
-  // Завжди перша сторінка
-  pages.push(1);
+  const visibleButtons = maxButtons - 2; // без першої та останньої
+  const half = Math.floor(visibleButtons / 2);
 
-  let startPage = Math.max(currentPage - half, 2);
-  let endPage = Math.min(currentPage + half, totalPages - 1);
+  let start = Math.max(currentPage - half, 2);
+  let end = Math.min(currentPage + half, totalPages - 1);
 
-  // Коригуємо, якщо поточна сторінка близько до країв
-  if (currentPage <= half + 1) {
-    startPage = 2;
-    endPage = Math.min(maxButtons, totalPages - 1);
+  // Коригуємо, якщо на початку або в кінці не вистачає кнопок
+  const needed = visibleButtons - (end - start + 1);
+  if (needed > 0) {
+    if (start === 2) {
+      end = Math.min(end + needed, totalPages - 1);
+    } else if (end === totalPages - 1) {
+      start = Math.max(start - needed, 2);
+    }
   }
-  if (currentPage >= totalPages - half) {
-    startPage = Math.max(totalPages - maxButtons + 1, 2);
-    endPage = totalPages - 1;
-  }
 
-  // Додаємо «...» якщо початок > 2
-  if (startPage > 2) pages.push('...');
+  pages.push(1); // перша сторінка
+  if (start > 2) pages.push('...');
 
-  // Сторінки між першою та останньою
-  for (let i = startPage; i <= endPage; i++) {
+  for (let i = start; i <= end; i++) {
     pages.push(i);
   }
 
-  // Додаємо «...» якщо кінець < totalPages - 1
-  if (endPage < totalPages - 1) pages.push('...');
-
-  // Завжди остання сторінка
-  pages.push(totalPages);
+  if (end < totalPages - 1) pages.push('...');
+  pages.push(totalPages); // остання сторінка
 
   return (
     <div className="flex justify-center gap-2 mt-4 flex-wrap">
