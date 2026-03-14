@@ -2,34 +2,43 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  visibleEndCount?: number; // скільки сторінок показати перед останньою
+  maxVisible?: number; // скільки сторінок показувати між першою і останньою
 }
 
 export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  visibleEndCount = 5,
+  maxVisible = 5,
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages: (number | '...')[] = [];
+  pages.push(1); // завжди перша
 
-  // Перша сторінка
-  pages.push(1);
+  let start = Math.max(currentPage - Math.floor(maxVisible / 2), 2);
+  let end = Math.min(currentPage + Math.floor(maxVisible / 2), totalPages - 1);
 
-  // Блок перед останньою сторінкою
-  const startBlock = Math.max(totalPages - visibleEndCount, 2);
-  const endBlock = totalPages - 1;
+  // Якщо на початку менше сторінок
+  if (currentPage <= Math.floor(maxVisible / 2) + 1) {
+    start = 2;
+    end = Math.min(maxVisible + 1, totalPages - 1);
+  }
 
-  if (startBlock > 2) pages.push('...');
+  // Якщо близько до кінця
+  if (currentPage >= totalPages - Math.floor(maxVisible / 2)) {
+    end = totalPages - 1;
+    start = Math.max(totalPages - maxVisible, 2);
+  }
 
-  for (let i = startBlock; i <= endBlock; i++) {
+  if (start > 2) pages.push('...');
+
+  for (let i = start; i <= end; i++) {
     pages.push(i);
   }
 
-  // Остання сторінка
-  pages.push(totalPages);
+  if (end < totalPages - 1) pages.push('...');
+  pages.push(totalPages); // завжди остання
 
   return (
     <div className="flex justify-center gap-2 mt-4 flex-wrap">
