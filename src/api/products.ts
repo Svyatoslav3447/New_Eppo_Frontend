@@ -40,6 +40,7 @@ interface GetProductsParams {
   typeId?: number;
   sort?: string;
   search?: string;
+  showHidden?: boolean;
 }
 
 export const getProducts = async ({
