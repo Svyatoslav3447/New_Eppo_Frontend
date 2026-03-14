@@ -46,8 +46,8 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         <Card title="Список товарів" onClick={() => navigate("/admin/productsList")} />
         <Card title="Створити товар" onClick={() => navigate("/admin/productsCreate")} />
-        <Card title="Замовлення" onClick={() => navigate("/admin/ordersList")} />
-        <Card title="Категорії" onClick={() => navigate("/admin/categoriesAdmin")} />
+        <Card title="Список замовлень" onClick={() => navigate("/admin/ordersList")} />
+        <Card title="Керування категоріями" onClick={() => navigate("/admin/categoriesAdmin")} />
         <Card title="Редагувати головну" onClick={() => navigate("/admin/homeEdit")} />
       </div>
     </div>
