@@ -90,6 +90,7 @@ export default function OrderDetails() {
       alert("Не вдалося змінити статус");
     }
   };
+  
   const handlePrint = () => {
     if (!printRef.current || !order) return;
   
@@ -137,15 +138,15 @@ export default function OrderDetails() {
                 <th>Артикул</th>
                 <th>Параметри</th>
                 <th>К-сть</th>
-                <th>Ціна (USD)</th>
-                <th>Сума (USD)</th>
+                <th>Ціна (грн)</th>
+                <th>Сума (грн)</th>
               </tr>
             </thead>
             <tbody>
               ${groupedItems.map(({ item, paramCounts }, i) => {
                 const totalQty = Object.values(paramCounts).reduce((a,b)=>a+b,0);
-                const price = Number(item.price_usd).toFixed(2);
-                const sum = (Number(item.price_usd) * totalQty).toFixed(2);
+                const priceUAH = (Number(item.price_usd) * rate).toFixed(2);
+                const sumUAH = (Number(item.price_usd) * totalQty * rate).toFixed(2);
                 const params = Object.entries(paramCounts)
                   .filter(([k]) => k)
                   .map(([k,v]) => `${k} - ${v} шт.`)
@@ -160,8 +161,8 @@ export default function OrderDetails() {
                     <td>${item.product.sku}</td>
                     <td>${params}</td>
                     <td>${totalQty}</td>
-                    <td>${price}</td>
-                    <td>${sum}</td>
+                    <td>${priceUAH}</td>
+                    <td>${sumUAH}</td>
                   </tr>
                 `;
               }).join("")}
@@ -169,16 +170,16 @@ export default function OrderDetails() {
             <tfoot>
               <tr>
                 <td colspan="6" style="text-align:right;">Разом:</td>
-                <td>${totalUSD.toFixed(2)}</td>
+                <td>${(totalUSD * rate).toFixed(2)}</td>
               </tr>
               ${discountPercent > 0 ? `
                 <tr class="discount">
                   <td colspan="6" style="text-align:right;">Знижка (${discountPercent}%):</td>
-                  <td>- ${(totalUSD - totalAfterDiscountUSD).toFixed(2)}</td>
+                  <td>- ${((totalUSD - totalAfterDiscountUSD) * rate).toFixed(2)}</td>
                 </tr>
                 <tr class="total-after-discount">
                   <td colspan="6" style="text-align:right;">Разом після знижки:</td>
-                  <td>${totalAfterDiscountUSD.toFixed(2)}</td>
+                  <td>${(totalAfterDiscountUSD * rate).toFixed(2)}</td>
                 </tr>
               ` : ""}
             </tfoot>
@@ -193,6 +194,7 @@ export default function OrderDetails() {
     printWindow.print();
     printWindow.close();
   };
+
 
   if (loading) return <p className="p-6">Завантаження...</p>;
   if (error) return <p className="p-6 text-red-600">{error}</p>;
