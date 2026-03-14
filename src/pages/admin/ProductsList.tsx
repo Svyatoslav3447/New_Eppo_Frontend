@@ -25,8 +25,8 @@ export default function ProductsList() {
         page: pageNum,
         limit: perPage,
         search,
-        is_hidden: showHidden ? true : undefined,
-      });
+        ...(showHidden ? { is_hidden: true } : {}),
+      } as any);
   
       setProducts(res.data);                     
       setPage(pageNum);                          
