@@ -43,10 +43,27 @@ export default function ProductsList() {
     }
   };
 
-  // Фільтруємо продукти по SKU
-  const filteredProducts = products.filter(p =>
-    p.sku.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const res = await getProducts({
+        page: 1,
+        limit: 1000, 
+        search,
+      });
+      setProducts(res.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      handleSearch();
+    }, 300);
+  
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -54,19 +71,19 @@ export default function ProductsList() {
 
       {/* Пошук */}
       <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="Знайти товар по SKU"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          onClick={() => {}}
-        >
-          Знайти
-        </button>
+      <input
+        type="text"
+        className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="Знайти товар по SKU"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <button
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        onClick={handleSearch} // тепер кнопка запускає серверний пошук
+      >
+        Знайти
+      </button>
       </div>
 
       {loading ? (
