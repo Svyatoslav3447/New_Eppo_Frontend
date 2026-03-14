@@ -200,12 +200,14 @@ export default function OrderDetails() {
                 <p><b>Артикул:</b> {item.product.sku}</p>
                 <p><b>Ціна:</b> {priceUSD.toFixed(2)} USD / {priceUAH.toFixed(2)} грн</p>
                 <p><b>Сума:</b> {sumUSD.toFixed(2)} USD / {sumUAH.toFixed(2)} грн</p>
-                {Object.keys(paramCounts).length > 0 && (
+                {Object.entries(paramCounts).filter(([k]) => k).length > 0 && (
                   <div className="mt-1">
                     <b>Вибрані параметри:</b>
                     <ul className="list-disc list-inside text-gray-600">
-                      {Object.entries(paramCounts).map(([paramWithName, qty], idx) => (
-                        <li key={idx}>{paramWithName} - {qty} шт.</li>
+                      {Object.entries(paramCounts)
+                        .filter(([paramWithName]) => paramWithName)
+                        .map(([paramWithName, qty], idx) => (
+                          <li key={idx}>{paramWithName} - {qty} шт.</li>
                       ))}
                     </ul>
                   </div>
@@ -253,8 +255,10 @@ export default function OrderDetails() {
                   <td className="border p-2">{item.product.sku}</td>
                   <td className="border p-2">
                     <ul className="list-disc list-inside text-gray-600">
-                      {Object.entries(paramCounts).map(([paramWithName, qty], idx) => (
-                        <li key={idx}>{paramWithName} - {qty} шт.</li>
+                      {Object.entries(paramCounts)
+                        .filter(([paramWithName]) => paramWithName)
+                        .map(([paramWithName, qty], idx) => (
+                          <li key={idx}>{paramWithName} - {qty} шт.</li>
                       ))}
                     </ul>
                   </td>
