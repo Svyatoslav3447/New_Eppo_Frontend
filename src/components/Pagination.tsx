@@ -14,38 +14,32 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   const pages: (number | '...')[] = [];
-  const half = Math.floor(maxVisible / 2);
+  
+  // 1. Визначаємо межі "вікна" навколо поточної сторінки
+  let start = Math.max(2, currentPage - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages - 1, start + maxVisible - 1);
 
-  // Завжди перша сторінка
-  pages.push(1);
-
-  let start = Math.max(currentPage - half, 2);
-  let end = Math.min(currentPage + half, totalPages - 1);
-
-  // Корекція якщо занадто близько до початку
-  if (currentPage <= half + 1) {
-    start = 2;
-    end = Math.min(1 + maxVisible, totalPages - 1);
+  // 2. Коригуємо початок, якщо кінець вперся в ліміт
+  if (end === totalPages - 1) {
+    start = Math.max(2, end - maxVisible + 1);
   }
 
-  // Корекція якщо занадто близько до кінця
-  if (currentPage >= totalPages - half) {
-    end = totalPages - 1;
-    start = Math.max(totalPages - maxVisible, 2);
+  // Побудова масиву
+  pages.push(1); // Завжди перша
+
+  if (start > 2) {
+    pages.push('...');
   }
 
-  // Додаємо "..." якщо потрібно
-  if (start > 2) pages.push('...');
-
-  // Додаємо сторінки між першою і останньою
   for (let i = start; i <= end; i++) {
     pages.push(i);
   }
 
-  if (end < totalPages - 1) pages.push('...');
+  if (end < totalPages - 1) {
+    pages.push('...');
+  }
 
-  // Завжди остання сторінка
-  pages.push(totalPages);
+  pages.push(totalPages); // Завжди остання
 
   return (
     <div className="flex justify-center gap-2 mt-4 flex-wrap">
@@ -59,11 +53,12 @@ export function Pagination({
 
       {pages.map((p, idx) =>
         p === '...' ? (
-          <span key={idx} className="px-3 py-1 select-none">…</span>
+          // Використовуйте комбінований ключ, щоб уникнути помилок React
+          <span key={`dots-${idx}`} className="px-3 py-1 select-none">…</span>
         ) : (
           <button
             key={p}
-            onClick={() => onPageChange(p)}
+            onClick={() => onPageChange(p as number)}
             className={`px-3 py-1 rounded border ${
               currentPage === p ? 'bg-purple-600 text-white border-purple-600' : 'hover:bg-gray-100'
             }`}
