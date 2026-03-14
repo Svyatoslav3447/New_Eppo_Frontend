@@ -2,10 +2,10 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  maxButtons?: number; // опційно, скільки сторінок показувати навколо поточної
+  maxButtons?: number; // скільки сторінок показувати навколо поточної
 }
 
-function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5) {
+function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 7) {
   const pages: (number | '...')[] = [];
 
   if (totalPages <= maxButtons) {
@@ -17,7 +17,7 @@ function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5)
   let startPage = currentPage - numAdjacents;
   let endPage = currentPage + numAdjacents;
 
-  // Гарантуємо, що вони не виходять за межі
+  // виправляємо якщо виходить за межі
   if (startPage < 2) {
     endPage += 2 - startPage;
     startPage = 2;
@@ -29,7 +29,7 @@ function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5)
 
   startPage = Math.max(startPage, 2);
 
-  pages.push(1);
+  pages.push(1); // перша сторінка
 
   if (startPage > 2) pages.push('...');
 
@@ -39,7 +39,7 @@ function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 5)
 
   if (endPage < totalPages - 1) pages.push('...');
 
-  pages.push(totalPages);
+  pages.push(totalPages); // остання сторінка
 
   return pages;
 }
@@ -48,7 +48,7 @@ export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  maxButtons = 5,
+  maxButtons = 7,
 }: PaginationProps) {
   const pageNumbers = getPageNumbers(currentPage, totalPages, maxButtons);
 
@@ -64,9 +64,7 @@ export function Pagination({
 
       {pageNumbers.map((p, idx) =>
         p === '...' ? (
-          <span key={idx} className="px-3 py-1">
-            ...
-          </span>
+          <span key={idx} className="px-3 py-1 select-none">...</span>
         ) : (
           <button
             key={p}
