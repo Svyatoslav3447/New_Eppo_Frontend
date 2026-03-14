@@ -13,6 +13,7 @@ export default function ProductsList() {
 
   // Для пошуку
   const [search, setSearch] = useState("");
+  const [showHidden, setShowHidden] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
@@ -24,6 +25,7 @@ export default function ProductsList() {
         page: pageNum,
         limit: perPage,
         search,
+        is_hidden: showHidden ? true : undefined,
       });
   
       setProducts(res.data);                     
@@ -40,7 +42,7 @@ export default function ProductsList() {
   
   useEffect(() => {
     fetchProducts(1);
-  }, [search]);
+  }, [search, showHidden]);
 
   const handleDelete = async (id: number) => {
     try {
@@ -83,19 +85,27 @@ export default function ProductsList() {
 
       {/* Пошук */}
       <div className="mb-4 flex gap-2">
-      <input
-        type="text"
-        className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        placeholder="Знайти товар по SKU"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        onClick={handleSearch} // тепер кнопка запускає серверний пошук
-      >
-        Знайти
-      </button>
+        <input
+          type="text"
+          className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          placeholder="Знайти товар по SKU"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          onClick={handleSearch} // тепер кнопка запускає серверний пошук
+        >
+          Знайти
+        </button>
+        <label className="flex items-center gap-1">
+          <input
+            type="checkbox"
+            checked={showHidden}
+            onChange={(e) => setShowHidden(e.target.checked)}
+          />
+          Показати всі приховані товари
+        </label>
       </div>
 
       {loading ? (
