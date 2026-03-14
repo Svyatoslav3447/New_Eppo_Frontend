@@ -2,77 +2,69 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  maxButtons?: number; // скільки сторінок показувати навколо поточної
-}
-
-function getPageNumbers(currentPage: number, totalPages: number, maxButtons = 7) {
-  const pages: (number | '...')[] = [];
-
-  if (totalPages <= maxButtons) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const numAdjacents = Math.floor((maxButtons - 3) / 2); // кнопки навколо поточної
-
-  let startPage = currentPage - numAdjacents;
-  let endPage = currentPage + numAdjacents;
-
-  // виправляємо якщо виходить за межі
-  if (startPage < 2) {
-    endPage += 2 - startPage;
-    startPage = 2;
-  }
-  if (endPage > totalPages - 1) {
-    startPage -= endPage - (totalPages - 1);
-    endPage = totalPages - 1;
-  }
-
-  startPage = Math.max(startPage, 2);
-
-  pages.push(1); // перша сторінка
-
-  if (startPage > 2) pages.push('...');
-
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
-  }
-
-  if (endPage < totalPages - 1) pages.push('...');
-
-  pages.push(totalPages); // остання сторінка
-
-  return pages;
+  maxButtons?: number; // скільки кнопок показувати навколо поточної
 }
 
 export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  maxButtons = 7,
+  maxButtons = 5,
 }: PaginationProps) {
-  const pageNumbers = getPageNumbers(currentPage, totalPages, maxButtons);
+  if (totalPages <= 1) return null;
+
+  const pages: (number | '...')[] = [];
+  const half = Math.floor(maxButtons / 2);
+
+  // Завжди перша сторінка
+  pages.push(1);
+
+  let startPage = Math.max(currentPage - half, 2);
+  let endPage = Math.min(currentPage + half, totalPages - 1);
+
+  // Коригуємо, якщо поточна сторінка близько до країв
+  if (currentPage <= half + 1) {
+    startPage = 2;
+    endPage = Math.min(maxButtons, totalPages - 1);
+  }
+  if (currentPage >= totalPages - half) {
+    startPage = Math.max(totalPages - maxButtons + 1, 2);
+    endPage = totalPages - 1;
+  }
+
+  // Додаємо «...» якщо початок > 2
+  if (startPage > 2) pages.push('...');
+
+  // Сторінки між першою та останньою
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+
+  // Додаємо «...» якщо кінець < totalPages - 1
+  if (endPage < totalPages - 1) pages.push('...');
+
+  // Завжди остання сторінка
+  pages.push(totalPages);
 
   return (
-    <div className="mt-6 flex justify-center gap-2 flex-wrap">
+    <div className="flex justify-center gap-2 mt-4 flex-wrap">
       <button
-        className="px-3 py-1 rounded-lg border border-purple-300 text-purple-700 hover:bg-purple-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50"
       >
         Назад
       </button>
 
-      {pageNumbers.map((p, idx) =>
+      {pages.map((p, idx) =>
         p === '...' ? (
-          <span key={idx} className="px-3 py-1 select-none">...</span>
+          <span key={idx} className="px-3 py-1 select-none">…</span>
         ) : (
           <button
             key={p}
             onClick={() => onPageChange(p)}
-            className={`px-3 py-1 rounded-lg border shadow-sm transition ${
-              currentPage === p
-                ? "bg-purple-600 text-white border-purple-600"
-                : "border-purple-300 text-purple-700 hover:bg-purple-50"
+            className={`px-3 py-1 rounded border ${
+              currentPage === p ? 'bg-purple-600 text-white border-purple-600' : 'hover:bg-gray-100'
             }`}
           >
             {p}
@@ -81,9 +73,9 @@ export function Pagination({
       )}
 
       <button
-        className="px-3 py-1 rounded-lg border border-purple-300 text-purple-700 hover:bg-purple-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50"
       >
         Вперед
       </button>
