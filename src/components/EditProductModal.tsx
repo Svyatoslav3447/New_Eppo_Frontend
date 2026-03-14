@@ -46,7 +46,7 @@ export default function EditProductModal({
 }: Props) {
   const [parameters, setParameters] = useState<ParameterValues[]>(initialParameters);
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
   const [form, setForm] = useState<{
     sku: string;
     price_usd: number;
@@ -99,7 +99,7 @@ export default function EditProductModal({
     );
   };
   // Фото
-  const [displayedImage, setDisplayedImage] = useState<string>(`${API_URL}/images/products/${product.sku}.webp`);
+  const [displayedImage, setDisplayedImage] = useState<string>(`${BASE_URL}/images/products/${product.sku}.webp`);
   const processImage = (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -159,7 +159,7 @@ export default function EditProductModal({
       return () => URL.revokeObjectURL(objectUrl);
     } else {
       // якщо файл не вибрано → показуємо стару картинку за початковим SKU
-      setDisplayedImage(`${API_URL}/images/products/${product.sku}.webp`);
+      setDisplayedImage(`${BASE_URL}/images/products/${product.sku}.webp`);
     }
   }, [selectedFile, product.sku]);
   // Завантажуємо категорії
