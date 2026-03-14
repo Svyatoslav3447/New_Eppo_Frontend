@@ -57,11 +57,13 @@ export default function ProductsList() {
     setLoading(true);
     try {
       const res = await getProducts({
-        page: pageNum,
+        page: 1,
         limit: perPage,
         search,
       });
       setProducts(res.data);
+      setTotalPages(res.pagination.totalPages);
+      setPage(1);
     } finally {
       setLoading(false);
     }
