@@ -1,3 +1,10 @@
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  maxVisible?: number; // скільки сторінок показувати між першою і останньою
+}
+
 export function Pagination({
   currentPage,
   totalPages,
