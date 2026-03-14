@@ -62,6 +62,7 @@ export default function ProductsList() {
         page: 1,
         limit: perPage,
         search,
+        showHidden,
       });
       setProducts(res.data);
       setTotalPages(res.pagination.totalPages);
@@ -77,7 +78,7 @@ export default function ProductsList() {
     }, 300);
   
     return () => clearTimeout(timeout);
-  }, [search]);
+  }, [search, showHidden]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
