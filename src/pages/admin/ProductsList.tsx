@@ -39,10 +39,7 @@ export default function ProductsList() {
   useEffect(() => {
     fetchProducts(1);
   }, []);
-  
-  useEffect(() => {
-    fetchProducts(1);
-  }, [search, showHidden]);
+
 
   const handleDelete = async (id: number) => {
     try {
@@ -73,8 +70,22 @@ export default function ProductsList() {
   };
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      handleSearch();
+    const timeout = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await getProducts({
+          page: 1,
+          limit: perPage,
+          search,
+          showHidden,
+          userRole: "ADMIN", // або USER, залежно від контексту
+        } as any);
+        setProducts(res.data);
+        setPage(1);
+        setTotalPages(res.pagination.totalPages);
+      } finally {
+        setLoading(false);
+      }
     }, 300);
   
     return () => clearTimeout(timeout);
