@@ -157,7 +157,7 @@ export default function OrderDetails() {
             <p><b>Імʼя:</b> ${order?.firstName || "-"}</p>
             <p><b>Прізвище:</b> ${order?.lastName || "-"}</p>
             <p><b>Телефон:</b> ${order?.phone || "-"}</p>
-            <p><b>Дата:</b> ${new Date(order?.created_at).toLocaleString()}</p>
+            <p><b>Дата:</b> {order.created_at ? new Date(order.created_at).toLocaleString() : "-"}</p>
             <p><b>Доставка:</b> ${order?.delivery ? deliveryLabels[order.delivery] ?? order.delivery : "-"}</p>
             <p><b>Місто:</b> ${order?.city || "-"}</p>
             <p><b>Відділення:</b> ${order?.npBranch || "-"}</p>
