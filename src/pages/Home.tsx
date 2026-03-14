@@ -31,7 +31,9 @@ export default function Home() {
   useEffect(() => {
     api.get("/slider").then(res => setSlider(res.data)).catch(console.error);
     api.get("/categories").then(res => setCategories(res.data)).catch(console.error);
-    api.get("/products").then(res => setNewProducts(res.data.slice(-4).reverse())).catch(console.error);
+    api.get("/products/new")
+      .then(res => setNewProducts(res.data))
+      .catch(console.error);
     api.get("/products/popular").then(res => setPopularProducts(res.data.slice(0,4))).catch(console.error);
   }, []);
 
