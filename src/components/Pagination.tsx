@@ -1,10 +1,3 @@
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  maxVisible?: number; // скільки сторінок показувати між першою і останньою
-}
-
 export function Pagination({
   currentPage,
   totalPages,
@@ -14,31 +7,38 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   const pages: (number | '...')[] = [];
-  pages.push(1); // завжди перша
+  const half = Math.floor(maxVisible / 2);
 
-  let start = Math.max(currentPage - Math.floor(maxVisible / 2), 2);
-  let end = Math.min(currentPage + Math.floor(maxVisible / 2), totalPages - 1);
+  // Завжди перша сторінка
+  pages.push(1);
 
-  // Якщо на початку менше сторінок
-  if (currentPage <= Math.floor(maxVisible / 2) + 1) {
+  let start = Math.max(currentPage - half, 2);
+  let end = Math.min(currentPage + half, totalPages - 1);
+
+  // Корекція якщо занадто близько до початку
+  if (currentPage <= half + 1) {
     start = 2;
-    end = Math.min(maxVisible + 1, totalPages - 1);
+    end = Math.min(1 + maxVisible, totalPages - 1);
   }
 
-  // Якщо близько до кінця
-  if (currentPage >= totalPages - Math.floor(maxVisible / 2)) {
+  // Корекція якщо занадто близько до кінця
+  if (currentPage >= totalPages - half) {
     end = totalPages - 1;
     start = Math.max(totalPages - maxVisible, 2);
   }
 
+  // Додаємо "..." якщо потрібно
   if (start > 2) pages.push('...');
 
+  // Додаємо сторінки між першою і останньою
   for (let i = start; i <= end; i++) {
     pages.push(i);
   }
 
   if (end < totalPages - 1) pages.push('...');
-  pages.push(totalPages); // завжди остання
+
+  // Завжди остання сторінка
+  pages.push(totalPages);
 
   return (
     <div className="flex justify-center gap-2 mt-4 flex-wrap">
