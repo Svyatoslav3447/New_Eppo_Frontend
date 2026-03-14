@@ -105,16 +105,16 @@ export default function ProductsList() {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {filteredProducts.map((product) => (
-                  <tr
-                    key={product.id}
-                    className={`
-                      transition-colors
-                      ${product.is_hidden
-                        ? "bg-gray-100 text-gray-400"
-                        : "hover:bg-gray-50"}
-                    `}
-                  >
+              {products.map((product: Product) => (
+                <tr
+                  key={product.id}
+                  className={`
+                    transition-colors
+                    ${product.is_hidden
+                      ? "bg-gray-100 text-gray-400"
+                      : "hover:bg-gray-50"}
+                  `}
+                >
                   <td className="border p-2 text-center">{product.id}</td>
                   <td className="border p-2">
                     <img
@@ -129,7 +129,6 @@ export default function ProductsList() {
                   <td className="border p-2">
                     <div className="flex items-center gap-2">
                       <span>{product.sku}</span>
-
                       {product.is_hidden && (
                         <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-600 font-semibold">
                           Прихований
