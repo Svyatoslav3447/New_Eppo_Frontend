@@ -400,12 +400,12 @@ export default function OrderDetails() {
                   <tr className="font-bold text-yellow-700">
                     <td colSpan={6} className="border p-2 text-right">Знижка ({discountPercent}%):</td>
                     <td className="border p-2">
-                      - {(totalUSD - totalAfterDiscountUSD).toFixed(2)} / - {(totalUAH - totalAfterDiscountUAH).toFixed(2)}
+                      - {(totalUAH - totalAfterDiscountUAH).toFixed(2)} / - {(totalUSD - totalAfterDiscountUSD).toFixed(2)}
                     </td>
                   </tr>
                   <tr className="font-bold text-green-800">
                     <td colSpan={6} className="border p-2 text-right">Разом після знижки:</td>
-                    <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)} / {totalAfterDiscountUAH.toFixed(2)}</td>
+                    <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)} / {totalAfterDiscountUSD.toFixed(2)}</td>
                   </tr>
                 </>
               )}
