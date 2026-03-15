@@ -127,7 +127,14 @@ export default function OrderDetails() {
             <p><b>Відділення:</b> ${order.npBranch || "-"}</p>
             <p><b>Оплата:</b> ${order.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
             <p><b>Підтвердження дзвінком:</b> ${order.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
-            <p><b>Коментар:</b> ${order.comment || "-"}</p>
+            {order.comment && (
+              <div className="max-w-[500px]">
+                <b>Коментар:</b>
+                <div className="mt-1 max-h-32 overflow-y-auto break-words whitespace-pre-wrap text-gray-700 border rounded p-2 bg-gray-50">
+                  {order.comment}
+                </div>
+              </div>
+            )}
           </div>
   
           <table>
@@ -269,7 +276,14 @@ export default function OrderDetails() {
           <p><b>Відділення Нової Пошти:</b> {order.npBranch || "-"}</p>
           <p><b>Спосіб оплати:</b> {order.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
           <p><b>Підтвердження дзвінком:</b> {order.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
-          <p><b>Коментар:</b> {order.comment || "-"}</p>
+          {order.comment && (
+            <div className="max-w-[500px]">
+              <b>Коментар:</b>
+              <div className="mt-1 max-h-32 overflow-y-auto break-words whitespace-pre-wrap text-gray-700 border rounded p-2 bg-gray-50">
+                {order.comment}
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <b>Статус:</b>
             <select
