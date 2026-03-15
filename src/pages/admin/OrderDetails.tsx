@@ -127,14 +127,18 @@ export default function OrderDetails() {
             <p><b>Відділення:</b> ${order.npBranch || "-"}</p>
             <p><b>Оплата:</b> ${order.payment ? paymentLabels[order.payment] ?? order.payment : "-"}</p>
             <p><b>Підтвердження дзвінком:</b> ${order.callConfirm ? callConfirmLabels[order.callConfirm] ?? order.callConfirm : "-"}</p>
-            {order.comment && (
-              <div className="max-w-[500px]">
-                <b>Коментар:</b>
-                <div className="mt-1 max-h-32 overflow-y-auto break-words whitespace-pre-wrap text-gray-700 border rounded p-2 bg-gray-50">
-                  {order.comment}
-                </div>
-              </div>
-            )}
+            <p><b>Коментар:</b></p>
+            <div style="
+              border:1px solid #ccc;
+              padding:8px;
+              margin-top:4px;
+              max-width:600px;
+              word-break:break-word;
+              white-space:pre-wrap;
+              background:#fafafa;
+            ">
+              ${order.comment || "-"}
+            </div>
           </div>
   
           <table>
