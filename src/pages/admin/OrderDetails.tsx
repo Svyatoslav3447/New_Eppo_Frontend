@@ -219,7 +219,6 @@ export default function OrderDetails() {
 
   const discountPercent = Number(order.discount_percent ?? 0);
   const totalAfterDiscountUSD = Number(order.total_after_discount ?? totalUSD);
-  const totalAfterDiscountUAH = totalAfterDiscountUSD * rate;
 
   const groupedItems = Object.values(
     order.items.reduce<
