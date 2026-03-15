@@ -403,7 +403,7 @@ export default function OrderDetails() {
                   <tr className="font-bold text-yellow-700">
                     <td colSpan={6} className="border p-2 text-right">Знижка ({discountPercent}%):</td>
                     <td className="border p-2">
-                      - {(totalUSD - totalAfterDiscountUSD).toFixed(2)}
+                      - {(totalUAH - totalAfterDiscountUSD).toFixed(2)}
                     </td>
                   </tr>
                   <tr className="font-bold text-green-800">
