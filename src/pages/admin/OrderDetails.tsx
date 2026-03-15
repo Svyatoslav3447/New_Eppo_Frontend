@@ -388,8 +388,8 @@ export default function OrderDetails() {
                       </ul>
                     </td>
                     <td className="border p-2">{totalQty}</td>
-                    <td className="border p-2">{priceUSD.toFixed(2)} / {priceUAH.toFixed(2)}</td>
-                    <td className="border p-2">{sumUSD.toFixed(2)} / {sumUAH.toFixed(2)}</td>
+                    <td className="border p-2">{priceUAH.toFixed(2)}</td>
+                    <td className="border p-2">{sumUAH.toFixed(2)}</td>
                   </tr>
                 );
               })}
@@ -397,19 +397,19 @@ export default function OrderDetails() {
             <tfoot>
               <tr className="font-bold">
                 <td colSpan={6} className="border p-2 text-right">Разом:</td>
-                <td className="border p-2">{totalUSD.toFixed(2)} / {totalUAH.toFixed(2)}</td>
+                <td className="border p-2">{totalUAH.toFixed(2)}</td>
               </tr>
               {discountPercent > 0 && (
                 <>
                   <tr className="font-bold text-yellow-700">
                     <td colSpan={6} className="border p-2 text-right">Знижка ({discountPercent}%):</td>
                     <td className="border p-2">
-                      - {(totalUAH - totalAfterDiscountUAH).toFixed(2)} / - {(totalUSD - totalAfterDiscountUSD).toFixed(2)}
+                      - {(totalUSD - totalAfterDiscountUSD).toFixed(2)}
                     </td>
                   </tr>
                   <tr className="font-bold text-green-800">
                     <td colSpan={6} className="border p-2 text-right">Разом після знижки:</td>
-                    <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)} / {totalAfterDiscountUSD.toFixed(2)}</td>
+                    <td className="border p-2">{totalAfterDiscountUSD.toFixed(2)}</td>
                   </tr>
                 </>
               )}
